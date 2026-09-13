@@ -9,6 +9,9 @@
 const AUDIO_DIR = 'audio/';
 
 const AUDIO = {
+  // ---------- 标题 ----------
+  0: {f:'snow_dream.mp3',                                                loop:1, vol:.55, n:'开始界面BGM'},
+
   // ---------- 序章 ----------
   11:{f:'Erik Satie - Gymnopedies 3.mp3',                                 loop:1, vol:.55, n:'序章BGM'},
   1: {f:'103563__greencouch__thailand-jungle-cicade.mp3',                 loop:1, vol:.30, n:'蝉鸣'},
@@ -271,8 +274,16 @@ const GameAudio = (function(){
     Object.keys(el).forEach(id=>{
       if(AUDIO[id]&&AUDIO[id].loop&&!el[id].paused&&!active.has(id)) stop(id,true);
     });
-    // 无条件重放：play() 对正在响的循环音只会校准音量，不会重头开始
-    active.forEach(id=>play(id));
+    // 无条件重放；若元素被浏览器挂起（看似在放其实没声音），强制重启一次
+    active.forEach(id=>{
+      const au=el[id];
+      if(au && !au.paused && au.readyState>0 && au.currentTime===0){
+        try{ au.pause(); }catch(e){}
+      }
+      play(id);
+      const a2=el[id];
+      if(a2 && a2.paused){ a2.play().catch(()=>{}); }
+    });
   }
 
   return {init,play,stop,stopAll,duck,cue,tick,resetType,resync,setBgmVol,setSfxVol,AUDIO,CUES,
