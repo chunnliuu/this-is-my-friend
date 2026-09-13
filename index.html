@@ -355,7 +355,6 @@ html,body{width:100%;height:100%;background:#000;overflow:hidden;font-family:var
   </div>
   <div id="start-overlay"></div>
   <div id="start-hint">点击木牌以继续</div>
-  <div id="chapters"><span>测试跳转</span></div>
 </div>
 
 <div id="settings-screen">
@@ -489,8 +488,9 @@ const CHARS = {
 function playPV(done){ done(); }                 // 开场 PV：之后接入
 // 梦境：内嵌组员的 Godot 网页版（放在 dream/ 文件夹）
 // 有对应梦境就进 Godot，没有（比如梦境五还没做完）就退回占位卡片
-const DREAM_URL = { 1:'dream/game.html?dream=1', 2:'dream/game.html?dream=2',
-                    3:'dream/game.html?dream=3', 4:'dream/game.html?dream=4' };
+const DREAM_URL = { 1:'dream/game.html?dream=1',  2:'dream/game.html?dream=2',
+                    3:'dream/game.html?dream=3',  4:'dream/game.html?dream=4',
+                    5:'dream5/game.html?dream=5' };
 function enterDream(n, done){
   markDream(n);                                  // 记进「梦境一览」
   if(window.GameAudio)GameAudio.duck(true);      // 主线音轨压下去
@@ -1036,9 +1036,7 @@ let toastT=null;function toast(t){const el=$('paper-toast');el.textContent=t;el.
   $(a).oninput=()=>{$(b).textContent=$(a).value;if(a==='spd')TYPE_SPEED=+$(a).value;
     if(window.GameAudio){if(a==='bgm-vol')GameAudio.setBgmVol($(a).value/100);if(a==='sfx-vol')GameAudio.setSfxVol($(a).value/100);}};
 });
-S.forEach((s,i)=>{if(s.t!=='chapter')return;
-  const b=document.createElement('button');b.textContent=s.name;
-  b.onclick=e=>{e.stopPropagation();startAt(i);};$('chapters').appendChild(b);});
+// 测试跳转已移除（需要时按 M 键可显示开发工具）
 
 $('btnBack').onclick=e=>{e.stopPropagation();back();};
 $('btnHome').onclick=e=>{e.stopPropagation();goHome();};

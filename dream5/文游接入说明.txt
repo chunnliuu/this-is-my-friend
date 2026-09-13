@@ -1,0 +1,4 @@
+梦境五独立横版。入口 game.html?dream=5。黑底、16:9画面自适应，无底部控制栏；载入后直接开始，方向键或AD移动，点击人物交谈。首次按键/点击解锁声音。
+结尾跑步、撞击黑屏和尾音结束后，调用一次 window.parent.returnToStory()。与父页面同源加载；若使用iframe sandbox，允许scripts和same-origin。父页面挂载 window.returnToStory = function(){ /* 继续文游 */ };
+单独试玩没有该函数时停在结尾黑屏。
+本包是HTML游戏，页面及接入方式统一，不是Godot资源包。
