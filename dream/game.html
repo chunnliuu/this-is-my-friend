@@ -89,7 +89,25 @@ body {
 	text-align: center;
 	z-index: 1;
 }
-		</style>
+		
+/* ===== 与文游统一的加载外观 ===== */
+body { background-color:#000 !important; }
+#status { background-color:#000 !important; }
+#status-splash { display:none !important; }          /* 藏掉 Godot 机器人 */
+#status-progress {
+  width:200px !important; height:2px !important;
+  border:0 !important; background:rgba(232,214,178,.12) !important;
+  margin:auto !important; top:0; bottom:0; left:0; right:0;
+  -webkit-appearance:none; appearance:none;
+}
+#status-progress::-webkit-progress-bar{background:rgba(232,214,178,.12);}
+#status-progress::-webkit-progress-value{background:rgba(232,214,178,.55);}
+#status-progress::-moz-progress-bar{background:rgba(232,214,178,.55);}
+#status-notice{
+  background:none !important; border:0 !important; color:rgba(232,214,178,.45) !important;
+  font-family:'PingFang SC','Noto Sans SC',sans-serif !important; letter-spacing:.2em;
+}
+</style>
 		<link id="-gd-engine-icon" rel="icon" type="image/png" href="game.icon.png" />
 <link rel="apple-touch-icon" href="game.apple-touch-icon.png"/>
 
