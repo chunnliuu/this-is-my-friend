@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>这是我的朋友</title>
+<style>
+:root{--f:'PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;}
+button,input{font-family:var(--f);}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;background:#000;overflow:hidden;font-family:var(--f);user-select:none;}
+@keyframes blink{0%,100%{opacity:0.2;}50%{opacity:0.7;}}
+
+/* ===== 开始界面 ===== */
+#start-screen{position:absolute;inset:0;z-index:50;}
+#start-stage{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:max(100%, calc(100vh * 16 / 9));
+  height:max(100%, calc(100vw * 9 / 16));
+  overflow:visible;}
+#start-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;}
+#start-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.1) 0%,rgba(0,0,0,0.45) 100%);pointer-events:none;z-index:1;}
+#start-title{display:none;}
+#title-friend{position:absolute;left:48.34%;top:38.19%;width:30.76%;height:34.72%;
+  z-index:3;opacity:0;transition:opacity 3s ease;pointer-events:none;}
+#title-friend.show{opacity:1;}
+.sign-label{position:absolute;z-index:3;opacity:0;transition:opacity 2.2s ease;pointer-events:none;}
+.sign-label.show{opacity:1;}
+#lbl-start{left:12.21%;top:26.91%;width:13.67%;height:7.81%;}
+#lbl-settings{left:12.21%;top:34.72%;width:13.67%;height:8.68%;}
+#lbl-save{left:79.10%;top:43.40%;width:7.81%;height:7.99%;}
+#start-title h1{font-family:var(--f);font-size:clamp(1.8rem,5vw,3.2rem);color:#f5e9c8;letter-spacing:0.3em;text-shadow:0 2px 20px rgba(0,0,0,0.9);font-weight:normal;}
+#start-title p{margin-top:0.4em;font-size:clamp(0.55rem,1.2vw,0.82rem);color:rgba(220,200,150,0.55);letter-spacing:0.5em;}
+#btn-start-game{position:absolute;left:12.21%;top:26.91%;width:13.67%;height:7.81%;background:none;border:none;cursor:pointer;z-index:2;transition:filter 0.2s,transform 0.15s;}
+#btn-settings-screen{position:absolute;left:12.21%;top:34.72%;width:13.67%;height:8.68%;background:none;border:none;cursor:pointer;z-index:2;transition:filter 0.2s,transform 0.15s;}
+#btn-start-game,#btn-settings-screen,#btn-save-screen{opacity:0;pointer-events:none;transition:opacity .8s;}
+#start-screen.ready #btn-start-game,#start-screen.ready #btn-settings-screen,#start-screen.ready #btn-save-screen{opacity:1;pointer-events:auto;}
+#btn-save-screen{position:absolute;left:79.10%;top:43.40%;width:7.81%;height:7.99%;
+  background:none;border:none;cursor:pointer;z-index:4;transition:filter .25s,transform .2s;}
+#btn-start-game:hover,#btn-settings-screen:hover,#btn-save-screen:hover{filter:brightness(1.25);transform:translateX(3px);}
+#start-hint{opacity:0 !important;transition:opacity 1.4s;animation:none;}
+#start-screen.ready #start-hint{opacity:.38 !important;animation:blink 2.8s ease-in-out infinite;}
+#start-hint{position:absolute;bottom:6%;left:50%;transform:translateX(-50%);font-size:clamp(0.52rem,1vw,0.7rem);color:rgba(220,200,150,0.38);letter-spacing:0.35em;animation:blink 2.8s ease-in-out infinite;z-index:2;white-space:nowrap;}
+#chapters{position:absolute;right:20px;bottom:18px;z-index:3;display:flex;gap:8px;align-items:center;}
+#chapters span{font-size:0.7rem;color:rgba(220,200,150,0.4);letter-spacing:0.15em;margin-right:4px;}
+#chapters button{background:rgba(0,0,0,0.35);border:1px solid rgba(200,160,80,0.3);border-radius:4px;color:rgba(240,220,160,0.7);font-family:var(--f);font-size:0.72rem;padding:4px 10px;cursor:pointer;letter-spacing:0.1em;}
+#chapters button:hover{border-color:rgba(240,200,100,0.7);color:#f0d880;}
+
+/* ===== 设置 ===== */
+#settings-screen{position:absolute;inset:0;background:rgba(8,5,1,0.92);z-index:60;display:none;align-items:center;justify-content:center;}
+#settings-screen.show{display:flex;}
+.settings-box{background:#1e1408;border:1px solid #8B6030;border-radius:10px;padding:clamp(1.5rem,4vw,2.5rem) clamp(2rem,6vw,3.5rem);width:min(460px,86%);}
+.settings-title{font-family:var(--f);font-size:clamp(1.1rem,2.8vw,1.6rem);color:#f0d880;text-align:center;letter-spacing:0.35em;margin-bottom:2rem;}
+.settings-row{display:flex;align-items:center;margin-bottom:1.6rem;gap:14px;}
+.settings-label{font-size:clamp(0.8rem,1.8vw,1rem);color:#c8a060;width:5.5em;flex-shrink:0;letter-spacing:0.12em;}
+.settings-row input[type=range]{flex:1;accent-color:#c8a060;cursor:pointer;}
+.settings-val{font-size:clamp(0.75rem,1.5vw,0.9rem);color:#f0d880;width:3em;text-align:right;}
+.gold-btn{display:block;margin:1.8rem auto 0;background:none;border:1px solid #8B6030;border-radius:5px;color:#c8a060;font-family:var(--f);font-size:clamp(0.85rem,1.8vw,1.05rem);letter-spacing:0.25em;padding:0.55em 2.2em;cursor:pointer;transition:background 0.2s,color 0.2s;}
+.gold-btn:hover{background:#8B6030;color:#f0d880;}
+
+/* ===== 游戏画面 ===== */
+#game{position:absolute;inset:0;cursor:pointer;display:none;}
+#game.show{display:block;}
+.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.6s ease;}
+.bg.show{opacity:1;}
+#placeholder{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:#2a2622;color:#8c8174;font-size:22px;letter-spacing:2px;text-align:center;line-height:2;}
+
+#overlay{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);max-width:52%;opacity:0;transition:opacity .6s;pointer-events:none;z-index:4;}
+#overlay.show{opacity:1;}
+#overlay img,#overlay video{max-width:100%;max-height:62vh;display:block;box-shadow:0 10px 40px rgba(0,0,0,.6);}
+#prop{position:absolute;right:6%;top:46%;transform:translateY(-50%);opacity:0;transition:opacity .6s;pointer-events:none;z-index:4;}
+#prop.show{opacity:1;}
+#prop img{max-width:22vw;max-height:40vh;display:block;filter:drop-shadow(0 4px 12px rgba(0,0,0,.5));}
+.ph{width:30vw;height:30vh;background:#3a342e;color:#9a8e80;display:flex;align-items:center;justify-content:center;text-align:center;font-size:16px;padding:10px;}
+
+/* 对话框：沿用旧版 */
+#dialog-box{position:absolute;bottom:0;left:0;right:0;padding:24px 52px 38px;background:linear-gradient(to top,rgba(0,0,0,0.88) 0%,rgba(0,0,0,0.55) 70%,transparent 100%);z-index:10;min-height:150px;display:none;flex-direction:column;justify-content:flex-end;gap:8px;}
+#dialog-box.show{display:flex;}
+#speaker{font-family:var(--f);font-size:clamp(0.85rem,1.8vw,1.1rem);color:#f0d880;letter-spacing:0.2em;min-height:1.4em;}
+#speaker.clickable{cursor:pointer;text-decoration:underline dotted #f0d880;}
+#speaker.clickable.new-char{animation:nameGlow 1.5s ease-in-out 3;}
+#speaker.clickable:hover{color:#ffe566;text-shadow:0 0 8px rgba(240,210,80,0.8);}
+@keyframes nameGlow{0%,100%{opacity:1;}50%{opacity:0.3;text-shadow:0 0 12px rgba(240,210,80,1);}}
+#text{font-family:var(--f);font-size:clamp(0.95rem,2vw,1.2rem);color:#fff;line-height:1.9;letter-spacing:0.08em;min-height:2.5em;white-space:pre-wrap;}
+#click-hint{position:absolute;bottom:18px;right:52px;font-size:0.7rem;color:rgba(240,230,200,0.35);letter-spacing:0.3em;animation:blink 1.8s ease-in-out infinite;z-index:11;display:none;}
+
+/* 选项 */
+#choices{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:15;background:rgba(0,0,0,0.5);}
+#choices.show{display:flex;}
+.choice-btn{font-family:var(--f);font-size:clamp(1rem,2.5vw,1.4rem);color:#f0ead8;letter-spacing:0.2em;background:rgba(20,15,8,0.75);border:1px solid rgba(200,160,80,0.4);border-radius:6px;padding:0.7em 2.5em;cursor:pointer;transition:all 0.2s;min-width:260px;text-align:center;}
+.choice-btn:hover{background:rgba(80,55,20,0.85);border-color:rgba(240,200,100,0.7);transform:scale(1.03);}
+.choice-btn.inactive{opacity:0.4;cursor:not-allowed;}
+.choice-btn.inactive:hover{background:rgba(20,15,8,0.75);border-color:rgba(200,160,80,0.4);transform:none;}
+
+/* 人物介绍卡 */
+#char-card{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:30;background:rgba(0,0,0,0.65);}
+#char-card.show{display:flex;}
+#char-card-inner{background:#fff;border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,0.6);width:min(560px,78vw);display:flex;overflow:hidden;position:relative;}
+#char-card-img{width:45%;object-fit:cover;object-position:top left;flex-shrink:0;background:#f5f0e8;}
+#char-card-text{flex:1;padding:28px 24px 24px 20px;display:flex;flex-direction:column;gap:12px;background:#fff;}
+#char-name-display{font-family:var(--f);font-size:clamp(1rem,2.2vw,1.35rem);color:#3a2a10;letter-spacing:0.18em;border-bottom:1px solid rgba(100,70,20,0.2);padding-bottom:10px;}
+#char-desc-display{font-family:var(--f);font-size:clamp(0.72rem,1.4vw,0.88rem);color:#4a3820;line-height:1.9;letter-spacing:0.06em;}
+#char-close{position:absolute;top:10px;right:10px;background:rgba(80,55,20,0.15);border:none;color:#6b4c2a;font-size:1rem;width:28px;height:28px;border-radius:50%;cursor:pointer;}
+
+/* 红花油互动 */
+#hhy-mini{position:absolute;bottom:170px;right:40px;width:75px;cursor:pointer;z-index:12;animation:float 2s ease-in-out infinite;display:none;filter:drop-shadow(0 4px 8px rgba(0,0,0,0.5));}
+#hhy-mini.show{display:block;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+#hhy-hint{position:absolute;bottom:255px;right:18px;font-family:var(--f);font-size:0.72rem;color:rgba(240,210,120,0.85);letter-spacing:0.12em;display:none;animation:blink 1.5s infinite;z-index:12;}
+#hhy-hint.show{display:block;}
+#hhy-overlay{position:absolute;inset:0;z-index:20;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,0.72);}
+#hhy-overlay.show{display:flex;}
+#paint-hint{font-family:var(--f);font-size:clamp(1rem,2.5vw,1.3rem);color:#f0d880;letter-spacing:0.3em;margin-bottom:20px;}
+#paint-canvas{border-radius:12px;cursor:crosshair;touch-action:none;}
+#paint-progress{margin-top:14px;font-size:0.85rem;color:rgba(240,220,180,0.65);letter-spacing:0.2em;}
+
+/* 木须生长动画 */
+#muxu{position:absolute;inset:0;z-index:26;display:none;background:#000;overflow:hidden;cursor:default;}
+#muxu.show{display:block;}
+#muxu .fr{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transform-origin:42% 88%;}
+#muxu svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
+#muxu-fade{position:absolute;inset:0;background:#000;opacity:0;}
+
+/* 纸纹质感：盖在所有画面上，打散AI图的涂抹感 */
+#paper{position:absolute;inset:0;z-index:5;pointer-events:none;--k:0.6;}
+#paper .grain{position:absolute;inset:0;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 1.4 -0.2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");background-size:220px;mix-blend-mode:overlay;opacity:calc(var(--k)*0.55);}
+#paper .fiber{position:absolute;inset:0;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='600'><filter id='p'><feTurbulence type='fractalNoise' baseFrequency='0.035 0.06' numOctaves='4' seed='7' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.55  0 0 0 0 0.5  0 0 0 0 0.42  0 0 0 1.6 -0.35'/></filter><rect width='100%' height='100%' filter='url(%23p)'/></svg>");background-size:600px;mix-blend-mode:multiply;opacity:calc(var(--k)*0.35);}
+#paper .vig{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 55%,rgba(20,12,4,0.45) 100%);opacity:calc(var(--k)*0.9);}
+#paper.off,#paper.dream,#paper.black{display:none;}
+#paper-toast{position:absolute;top:20px;left:50%;transform:translateX(-50%);z-index:26;background:rgba(0,0,0,0.6);color:#f0d880;font-size:0.8rem;letter-spacing:0.15em;padding:6px 16px;border-radius:6px;opacity:0;transition:opacity .4s;pointer-events:none;}
+#paper-toast.show{opacity:1;}
+
+/* ===== 和ta聊聊：希望镇地图 ===== */
+#btn-map{position:absolute;top:62px;right:20px;z-index:24;background:rgba(0,0,0,0.5);border:1px solid rgba(200,160,80,0.45);border-radius:4px;color:#f0d880;font-size:0.8rem;letter-spacing:0.2em;padding:7px 16px;cursor:pointer;display:none;transition:background .2s;}
+#btn-map:hover{background:rgba(80,55,20,0.8);}
+#btn-map.show{display:block;}
+#map-layer{position:absolute;inset:0;z-index:35;background:#12100c;display:none;align-items:center;justify-content:center;flex-direction:column;cursor:default;}
+#map-layer.show{display:flex;}
+#map-title{font-size:13px;letter-spacing:.5em;color:#b7ad97;margin-bottom:12px;}
+#map{position:relative;width:min(1040px,94vw,calc(84vh*954/636));aspect-ratio:954/636;border:1px solid #3a352b;overflow:hidden;background:#c9bfa0 url('ui/map_bg.jpg') center/cover no-repeat;}
+#map::after{content:"";position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 100px 16px rgba(30,24,14,.26);}
+#map-close{position:absolute;top:18px;right:22px;font-size:28px;color:#cfc9b8;cursor:pointer;line-height:1;z-index:3;}
+.mhead{position:absolute;transform:translate(-50%,-50%);cursor:pointer;z-index:5;display:flex;flex-direction:column;align-items:center;transition:transform .3s;filter:drop-shadow(0 2px 6px rgba(0,0,0,.45));}
+.mhead img{width:100%;height:100%;object-fit:contain;display:block;pointer-events:none;}
+.mhead .nm{margin-top:2px;font-size:11px;letter-spacing:.14em;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.95);opacity:0;transition:opacity .3s;white-space:nowrap;}
+.mhead:hover{transform:translate(-50%,-50%) scale(1.12);}
+.mhead:hover .nm{opacity:1;}
+.mhead.person{width:5.4%;aspect-ratio:1;}
+.mhead.bird{width:6.5%;aspect-ratio:62/40;}
+.mhead.locked{display:none;}
+.m-tree{position:absolute;transform:translate(-50%,-50%);z-index:3;pointer-events:none;left:54.19%;top:15.49%;width:18.45%;}
+.m-tree img{width:100%;display:block;}
+.m-tree .glow{position:absolute;left:50%;top:66%;transform:translate(-50%,-50%);width:80%;height:55%;border-radius:50%;background:radial-gradient(ellipse,rgba(190,220,225,.7) 0%,rgba(150,190,200,.28) 45%,rgba(150,190,200,0) 72%);animation:treeB 5.5s ease-in-out infinite;mix-blend-mode:screen;filter:blur(2px);}
+@keyframes treeB{0%,100%{opacity:.4;}50%{opacity:.8;}}
+.m-baishui{position:absolute;transform:translate(-50%,-50%);z-index:4;left:54%;top:18%;width:6%;aspect-ratio:1;border-radius:50%;cursor:pointer;background:radial-gradient(circle,rgba(170,190,188,.5) 0%,rgba(170,190,188,.16) 45%,rgba(170,190,188,0) 72%);animation:coldP 6.5s ease-in-out infinite;}
+@keyframes coldP{0%,100%{opacity:.35;}50%{opacity:.7;}}
+#m-whisper{position:absolute;transform:translate(-50%,-50%);font-size:14px;letter-spacing:.2em;color:#eef1f1;text-shadow:0 1px 6px rgba(0,0,0,.95);pointer-events:none;opacity:0;white-space:nowrap;z-index:9;}
+#m-whisper.show{animation:mwh 2.8s ease forwards;}
+@keyframes mwh{0%{opacity:0;transform:translate(-50%,-42%);}18%{opacity:.95;}72%{opacity:.95;transform:translate(-50%,-56%);}100%{opacity:0;transform:translate(-50%,-62%);}}
+#m-talk{position:absolute;inset:0;z-index:12;background:rgba(8,6,4,.7);display:none;align-items:center;justify-content:center;}
+#m-talk.show{display:flex;}
+#m-talk-box{background:#15130d;border:1px solid #3a352b;border-radius:6px;width:min(560px,90vw);padding:22px 26px;display:flex;gap:18px;cursor:default;}
+#m-talk-box img{width:96px;height:96px;object-fit:contain;flex-shrink:0;background:#f4f0e6;border-radius:4px;}
+#m-talk-who{font-size:14px;letter-spacing:.2em;color:#f0d880;margin-bottom:10px;}
+#m-chat-log{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;max-height:200px;min-height:60px;margin-top:6px;padding-right:2px;}
+#m-chat-log::-webkit-scrollbar{width:3px;}
+#m-chat-log::-webkit-scrollbar-thumb{background:rgba(200,160,80,0.25);border-radius:2px;}
+.m-msg-npc{align-self:flex-start;background:rgba(255,255,255,0.05);border-radius:6px;padding:7px 11px;font-size:14px;color:#efe6d8;line-height:1.75;max-width:92%;word-break:break-all;}
+.m-msg-player{align-self:flex-end;background:rgba(200,160,80,0.14);border-radius:6px;padding:7px 11px;font-size:14px;color:#f5e9c8;line-height:1.75;max-width:92%;word-break:break-all;}
+.m-msg-typing{align-self:flex-start;font-size:20px;color:rgba(240,220,180,0.5);padding:2px 8px;}
+#m-chat-input-row{display:flex;gap:8px;margin-top:10px;align-items:center;}
+#m-chat-input{flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(200,160,80,0.3);border-radius:4px;color:#f5e9c8;font-family:var(--f);font-size:13px;padding:7px 10px;outline:none;}
+#m-chat-input::placeholder{color:rgba(240,220,180,0.28);}
+#m-chat-input:focus{border-color:rgba(200,160,80,0.6);}
+#m-chat-send{background:none;border:1px solid rgba(200,160,80,0.4);border-radius:4px;color:#e8d8a8;font-family:var(--f);font-size:12px;padding:7px 14px;cursor:pointer;letter-spacing:.1em;white-space:nowrap;flex-shrink:0;}
+#m-chat-send:hover{background:rgba(80,55,20,0.6);}
+#m-chat-send:disabled{opacity:0.35;cursor:not-allowed;}
+
+/* 日期浮现 */
+#date-float{position:absolute;top:9%;left:50%;transform:translateX(-50%);z-index:14;font-size:clamp(1.3rem,3vw,2rem);color:#f5e9c8;letter-spacing:0.35em;text-shadow:0 2px 16px rgba(0,0,0,0.85);opacity:0;transition:opacity 1s ease;pointer-events:none;}
+#date-float.show{opacity:1;}
+
+/* 章节标题 */
+#chapter-title{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:20;opacity:0;transition:opacity 1.1s ease;pointer-events:none;background:#000;}
+#chapter-cg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;
+  transform:scale(1.03);transition:transform 7s ease-out;}
+#chapter-title.show #chapter-cg{transform:scale(1);}
+#chapter-title.has-cg h1{display:none;}
+#chapter-title.show{opacity:1;}
+#chapter-title h1{font-family:var(--f);font-size:clamp(2rem,5vw,3.5rem);color:#f5e9c8;letter-spacing:0.4em;text-shadow:0 0 30px rgba(0,0,0,0.9);font-weight:normal;}
+
+/* 占位卡（梦境 / 待定） */
+#card{position:absolute;inset:0;background:#000;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:18px;z-index:18;}
+#card .t{font-family:var(--f);font-size:clamp(1.6rem,4vw,2.4rem);color:#f5e9c8;letter-spacing:0.3em;}
+#card .s{font-size:0.85rem;color:rgba(240,220,160,0.45);letter-spacing:0.2em;}
+
+/* 右上角工具 */
+#tools{display:none !important;position:absolute;top:18px;left:24px;display:flex;align-items:center;z-index:25;opacity:0.22;transition:opacity .45s ease;}
+#tools:hover{opacity:0.78;}
+#tools button{font-family:var(--f);background:none;border:none;padding:2px 0;margin:0;
+  color:rgba(232,214,178,0.92);font-size:0.7rem;letter-spacing:0.22em;cursor:pointer;
+  transition:color .25s;text-shadow:0 1px 3px rgba(0,0,0,0.8);}
+#tools button:hover{color:#f0d880;}
+#tools button+button{margin-left:0;}
+#tools .sep{display:inline-block;width:1px;height:9px;margin:0 13px;
+  background:rgba(232,214,178,0.32);}
+#tools button#btnMiss{display:none;}
+#tools.dev button#btnMiss{display:inline;}
+#tools.dev .sep-dev{display:inline-block;}
+#tools .sep-dev{display:none;}
+#save-notice{position:absolute;top:20px;right:20px;background:rgba(0,0,0,0.55);border:1px solid rgba(200,160,80,0.25);border-radius:6px;padding:7px 14px;font-size:0.72rem;color:rgba(240,220,160,0.55);letter-spacing:0.15em;z-index:25;opacity:0;transition:opacity 0.5s;pointer-events:none;}
+#save-notice.show{opacity:1;}
+
+/* 存档提示 */
+#resume-modal{position:absolute;inset:0;background:rgba(0,0,0,0.9);z-index:40;display:none;align-items:center;justify-content:center;}
+#resume-modal.show{display:flex;}
+#resume-box{background:#1a1208;border:1px solid #8B6030;border-radius:10px;padding:2.5rem 3rem;text-align:center;}
+#resume-box p{font-family:var(--f);font-size:1.2rem;color:#f0d880;letter-spacing:0.2em;margin-bottom:1.5rem;}
+.resume-btn{font-family:var(--f);font-size:1rem;letter-spacing:0.2em;padding:0.6em 2em;border-radius:5px;cursor:pointer;margin:0 10px;border:1px solid #8B6030;background:none;color:#c8a060;}
+.resume-btn:hover{background:#8B6030;color:#f0d880;}
+
+
+#esc-tip{position:absolute;top:108px;right:22px;z-index:26;
+  font-family:var(--f);font-size:.68rem;letter-spacing:.2em;
+  color:rgba(232,214,178,.32);text-shadow:0 1px 4px rgba(0,0,0,.85);
+  pointer-events:none;opacity:0;transition:opacity 1.6s ease;}
+#esc-tip.show{opacity:1;}
+
+/* ===== Esc 菜单：纸片面板 ===== */
+#menu-layer{position:absolute;inset:0;z-index:48;display:none;cursor:default;
+  background:radial-gradient(ellipse at 50% 45%,rgba(12,9,5,.86) 0%,rgba(6,4,2,.96) 70%);
+  backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);}
+#menu-layer.show{display:block;animation:mFade .45s ease;}
+@keyframes mFade{from{opacity:0}to{opacity:1}}
+#menu-hint{position:absolute;top:26px;left:0;right:0;text-align:center;font-family:var(--f);
+  font-size:.7rem;letter-spacing:.35em;color:rgba(232,214,178,.3);pointer-events:none;}
+#menu-close{position:absolute;top:20px;right:28px;font-size:1.5rem;line-height:1;
+  color:rgba(232,214,178,.4);cursor:pointer;transition:color .25s;z-index:3;}
+#menu-close:hover{color:#f0d880;}
+#menu-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;}
+#menu-svg line{stroke:rgba(222,204,168,.26);stroke-width:1;}
+#menu-svg circle{fill:rgba(238,224,190,.7);}
+.mcard{position:absolute;z-index:2;cursor:pointer;
+  background:linear-gradient(155deg,#efe6d2 0%,#e3d7be 55%,#d8c9ab 100%);
+  border:1px solid rgba(120,96,58,.35);
+  box-shadow:0 3px 14px rgba(0,0,0,.55), inset 0 0 26px rgba(150,120,70,.16);
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  font-family:var(--f);color:#3d3020;letter-spacing:.18em;font-size:.95rem;
+  transition:transform .3s cubic-bezier(.2,.8,.3,1),box-shadow .3s,filter .3s;}
+.mcard::after{content:'';position:absolute;inset:5px;border:1px solid rgba(120,96,58,.18);pointer-events:none;}
+.mcard:hover{transform:translateY(-5px) rotate(0deg) scale(1.04);
+  box-shadow:0 8px 24px rgba(0,0,0,.6), inset 0 0 26px rgba(150,120,70,.2);filter:brightness(1.05);}
+.mcard.locked{filter:grayscale(.55) brightness(.62);cursor:default;}
+.mcard.locked:hover{transform:none;}
+.mcard.note{cursor:default;font-size:.78rem;letter-spacing:.12em;color:#5a4a33;line-height:1.9;}
+.mcard.note:hover{transform:none;filter:none;}
+#auto-tip{position:absolute;bottom:18px;left:24px;z-index:26;
+  font-family:var(--f);font-size:.68rem;letter-spacing:.22em;
+  color:rgba(240,216,128,.55);text-shadow:0 1px 4px rgba(0,0,0,.85);
+  pointer-events:none;opacity:0;transition:opacity .6s;}
+#auto-tip.show{opacity:1;}
+.mcard.on{background:linear-gradient(155deg,#f6ecd2 0%,#ecd9a8 55%,#e0c98c 100%);
+  box-shadow:0 4px 18px rgba(0,0,0,.55), inset 0 0 26px rgba(180,140,60,.28);}
+
+/* 梦境淡出过渡 */
+#dream-fade{position:absolute;inset:0;z-index:61;background:#000;opacity:0;
+  pointer-events:none;transition:opacity 1.6s ease;}
+#dream-fade.on{opacity:1;pointer-events:auto;}
+
+/* 梦境（Godot 内嵌） */
+#dream-layer{position:absolute;inset:0;z-index:60;display:none;background:#000;}
+#dream-layer.show{display:block;}
+#dream-frame{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;}
+#dream-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:var(--f);color:rgba(232,214,178,.5);letter-spacing:.3em;font-size:.85rem;
+  background:#000;transition:opacity 1s;}
+#dream-loading.gone{opacity:0;pointer-events:none;}
+#dream-exit{position:absolute;top:18px;right:24px;z-index:2;
+  font-family:var(--f);background:rgba(0,0,0,.55);border:1px solid rgba(200,160,80,.4);
+  color:rgba(240,216,128,.75);font-size:.74rem;letter-spacing:.2em;padding:7px 16px;
+  cursor:pointer;opacity:.35;transition:opacity .3s,background .2s;}
+#dream-exit:hover{opacity:1;background:rgba(240,216,128,.15);}
+
+/* 存档 */
+#slots{position:absolute;inset:0;z-index:52;display:none;cursor:default;
+  background:rgba(8,5,1,.95);padding:78px 11%;overflow-y:auto;}
+#slots.show{display:block;}
+#slots h2{font-family:var(--f);font-weight:normal;letter-spacing:.3em;color:#f0d880;margin-bottom:6px;}
+#slots .sub{font-family:var(--f);font-size:.72rem;letter-spacing:.18em;color:rgba(232,214,178,.35);margin-bottom:30px;}
+#slot-grid{display:flex;flex-wrap:wrap;gap:18px;}
+.slot{width:210px;min-height:132px;padding:16px 18px;cursor:pointer;position:relative;
+  background:linear-gradient(155deg,#efe6d2 0%,#e3d7be 55%,#d8c9ab 100%);
+  border:1px solid rgba(120,96,58,.35);color:#3d3020;font-family:var(--f);
+  box-shadow:0 3px 14px rgba(0,0,0,.5), inset 0 0 26px rgba(150,120,70,.16);
+  transition:transform .25s,filter .25s;}
+.slot:hover{transform:translateY(-4px);filter:brightness(1.05);}
+.slot .no{font-size:.7rem;letter-spacing:.24em;color:#7a6446;margin-bottom:12px;}
+.slot .ch{font-size:1rem;letter-spacing:.14em;margin-bottom:6px;}
+.slot .ln{font-size:.74rem;color:#5a4a33;line-height:1.8;}
+.slot .tm{font-size:.66rem;color:#8a7658;margin-top:10px;letter-spacing:.06em;}
+.slot.empty{background:rgba(40,32,20,.45);border-color:rgba(120,96,58,.2);
+  box-shadow:none;color:rgba(232,214,178,.3);display:flex;align-items:center;justify-content:center;}
+.slot.auto{border-style:dashed;}
+.slot-act{position:absolute;inset:0;display:none;align-items:center;justify-content:center;gap:10px;
+  background:rgba(30,24,14,.92);}
+.slot:hover .slot-act{display:flex;}
+.slot-act button{font-family:var(--f);background:none;border:1px solid rgba(232,214,178,.45);
+  color:#f0d880;font-size:.78rem;letter-spacing:.16em;padding:7px 15px;cursor:pointer;transition:all .2s;}
+.slot-act button:hover{background:rgba(240,216,128,.15);border-color:#f0d880;}
+
+/* 梦境一览 */
+#dreams{position:absolute;inset:0;z-index:50;display:none;cursor:default;
+  background:rgba(8,5,1,.95);padding:80px 12%;overflow-y:auto;}
+#dreams.show{display:block;}
+#dreams h2{font-family:var(--f);font-weight:normal;letter-spacing:.3em;color:#f0d880;margin-bottom:8px;}
+#dreams .sub{font-family:var(--f);font-size:.72rem;letter-spacing:.2em;color:rgba(232,214,178,.35);margin-bottom:36px;}
+#dream-grid{display:flex;flex-wrap:wrap;gap:20px;}
+.dcell{width:150px;height:190px;display:flex;align-items:center;justify-content:center;
+  font-family:var(--f);letter-spacing:.22em;font-size:1rem;
+  background:linear-gradient(155deg,#efe6d2 0%,#e3d7be 55%,#d8c9ab 100%);
+  border:1px solid rgba(120,96,58,.35);color:#3d3020;
+  box-shadow:0 3px 14px rgba(0,0,0,.5), inset 0 0 26px rgba(150,120,70,.16);position:relative;}
+.dcell::after{content:'';position:absolute;inset:5px;border:1px solid rgba(120,96,58,.18);}
+.dcell.lock{background:rgba(40,32,20,.5);border-color:rgba(120,96,58,.18);
+  box-shadow:none;color:transparent;}
+.dcell.lock::after{border-color:rgba(120,96,58,.1);}
+
+/* 玩法教学 */
+#howto{position:absolute;inset:0;z-index:50;display:none;cursor:default;
+  background:rgba(8,5,1,.95);padding:70px 14%;overflow-y:auto;}
+#howto.show{display:block;}
+#howto h2{font-family:var(--f);font-weight:normal;letter-spacing:.3em;color:#f0d880;margin-bottom:26px;}
+#howto p{font-family:var(--f);color:#e4dac6;line-height:2.1;font-size:.95rem;margin-bottom:14px;letter-spacing:.06em;}
+#howto b{color:#f0d880;font-weight:normal;}
+
+/* 回看 / 缺图清单 */
+.panel{position:absolute;inset:0;background:rgba(8,5,1,0.94);z-index:45;display:none;padding:60px 12%;overflow-y:auto;cursor:default;}
+.panel h2{font-family:var(--f);font-weight:normal;letter-spacing:0.3em;margin-bottom:24px;color:#f0d880;}
+.panel .row{margin-bottom:14px;line-height:1.8;font-size:1rem;color:#efe6d8;white-space:pre-wrap;font-family:var(--f);}
+.panel .row b{color:#f0d880;font-weight:normal;margin-right:10px;}
+.panel .gold-btn{position:fixed;top:20px;right:30px;margin:0;}
+</style>
+</head>
+<body>
+
+<div id="start-screen">
+  <div id="start-stage">
+    <img id="start-bg" src="ui/start_bg.jpg" alt="">
+    <img id="title-friend" src="ui/title_friend.png" alt="">
+    <img class="sign-label" id="lbl-start"    src="ui/sign_start.png" alt="">
+    <img class="sign-label" id="lbl-settings" src="ui/sign_settings.png" alt="">
+    <img class="sign-label" id="lbl-save"     src="ui/sign_save.png" alt="">
+    <button id="btn-start-game" aria-label="开始游戏"></button>
+    <button id="btn-settings-screen" aria-label="游戏设置"></button>
+    <button id="btn-save-screen" aria-label="存档"></button>
+  </div>
+  <div id="start-overlay"></div>
+  <div id="start-hint">点击木牌以继续</div>
+  <div id="chapters"><span>测试跳转</span></div>
+</div>
+
+<div id="settings-screen">
+  <div class="settings-box">
+    <div class="settings-title">游戏设置</div>
+    <div class="settings-row"><span class="settings-label">BGM 音量</span><input type="range" min="0" max="100" value="70" id="bgm-vol"><span class="settings-val" id="bgm-val">70</span></div>
+    <div class="settings-row"><span class="settings-label">音效音量</span><input type="range" min="0" max="100" value="70" id="sfx-vol"><span class="settings-val" id="sfx-val">70</span></div>
+    <div class="settings-row"><span class="settings-label">纸纹质感</span><input type="range" min="0" max="100" value="60" id="paper-k"><span class="settings-val" id="paper-val">60</span></div>
+    <div class="settings-row"><span class="settings-label">文字速度</span><input type="range" min="10" max="80" value="32" id="spd"><span class="settings-val" id="spd-val">32</span></div>
+    <button class="gold-btn" id="close-settings">返回主界面</button>
+  </div>
+</div>
+
+<div id="game">
+  <img class="bg" id="bgA" alt=""><img class="bg" id="bgB" alt="">
+  <video class="bg" id="bgV" playsinline></video>
+  <div id="placeholder"></div>
+  <div id="paper"><div class="fiber"></div><div class="grain"></div><div class="vig"></div></div>
+  <div id="paper-toast"></div>
+  <div id="overlay"></div>
+  <div id="prop"></div>
+  <div id="muxu">
+    <img class="fr" src="ui/muxu_1.jpg"><img class="fr" src="ui/muxu_2.jpg"><img class="fr" src="ui/muxu_3.jpg"><img class="fr" src="ui/muxu_4.jpg">
+    <svg id="muxu-svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice"></svg>
+    <div id="muxu-fade"></div>
+  </div>
+  <button id="btn-map">和ta聊聊</button>
+  <div id="map-layer">
+    <div id="map-close">×</div>
+    <div id="map-title">希 望 镇</div>
+    <div id="map">
+      <div class="mhead person" data-key="王叔" style="left:18%;top:42%;"><img src="ui/map_wang.png"><div class="nm">王叔</div></div>
+      <div class="mhead person" data-key="妈妈" style="left:69%;top:88%;"><img src="ui/map_mama.png"><div class="nm">妈妈</div></div>
+      <div class="mhead person locked" data-key="胡中" style="left:24%;top:10%;"><img src="ui/map_huzhong.png"><div class="nm">胡中</div></div>
+      <div class="mhead bird locked" data-key="乌鸦" style="left:74%;top:11%;"><img src="ui/map_crow.png"></div>
+      <div class="m-tree"><div class="glow"></div><img src="ui/map_tree.png"></div>
+      <div class="m-baishui" data-key="白水"></div>
+      <div id="m-whisper"></div>
+      <div id="m-talk"><div id="m-talk-box"><img id="m-talk-img"><div style="flex:1;display:flex;flex-direction:column;min-height:0;"><div id="m-talk-who"></div><div id="m-chat-log"></div><div id="m-chat-input-row"><input id="m-chat-input" type="text" placeholder="说点什么……" maxlength="100" autocomplete="off"><button id="m-chat-send">发 送</button></div></div></div></div>
+    </div>
+  </div>
+  <div id="date-float"></div>
+  <div id="chapter-title"><img id="chapter-cg" alt=""><h1 id="chapter-h1"></h1></div>
+  <div id="card"><div class="t"></div><div class="s"></div></div>
+  <div id="choices"></div>
+  <div id="char-card"><div id="char-card-inner"><img id="char-card-img" alt=""><div id="char-card-text"><div id="char-name-display"></div><div id="char-desc-display"></div></div><button id="char-close">✕</button></div></div>
+  <img id="hhy-mini" alt="红花油">
+  <div id="hhy-hint">点击红花油互动</div>
+  <div id="hhy-overlay"><div id="paint-hint">帮小游涂上红花油</div><canvas id="paint-canvas" width="420" height="190"></canvas><div id="paint-progress">涂抹进度：0%</div></div>
+  <div id="dialog-box"><div id="speaker"></div><div id="text"></div></div>
+  <div id="click-hint">点击继续 ▶</div>
+  <div id="tools"><button id="btnBack">上一句</button><span class="sep"></span><button id="btnLog">回看</button><span class="sep sep-dev"></span><button id="btnMiss">缺图清单</button><span class="sep"></span><button id="btnHome">回到标题</button></div>
+  <div id="save-notice">已自动存档</div>
+  <div id="resume-modal"><div id="resume-box"><p>检测到存档，是否继续？</p><button class="resume-btn" id="btn-resume">继续游戏</button><button class="resume-btn" id="btn-restart">重新开始</button></div></div>
+  
+<div id="esc-tip">按 ESC 打开菜单</div>
+<div id="menu-layer">
+  <div id="menu-hint">E S C &nbsp; 关 闭</div>
+  <div id="menu-close">×</div>
+  <svg id="menu-svg" preserveAspectRatio="none"></svg>
+  <div class="mcard" id="mc-back"   data-x="14" data-y="30" data-w="15" data-h="15" style="transform:rotate(-3.5deg)">上一句</div>
+  <div class="mcard" id="mc-log"    data-x="38" data-y="20" data-w="16" data-h="17" style="transform:rotate(2.2deg)">回看</div>
+  <div class="mcard" id="mc-map"    data-x="63" data-y="27" data-w="17" data-h="16" style="transform:rotate(-1.8deg)">和ta聊聊</div>
+  <div class="mcard" id="mc-set"    data-x="20" data-y="55" data-w="15" data-h="15" style="transform:rotate(3deg)">设置</div>
+  <div class="mcard" id="mc-how"    data-x="44" data-y="52" data-w="17" data-h="16" style="transform:rotate(-2.6deg)">玩法教学</div>
+  <div class="mcard" id="mc-home"   data-x="68" data-y="57" data-w="16" data-h="14" style="transform:rotate(1.6deg)">回到标题</div>
+  <div class="mcard" id="mc-auto" data-x="42" data-y="76" data-w="17" data-h="13" style="transform:rotate(1.4deg)">自动播放</div>
+  <div class="mcard" id="mc-slot" data-x="65" data-y="76" data-w="16" data-h="13" style="transform:rotate(-2.2deg)">存档</div>
+  <div class="mcard" id="mc-dream" data-x="19" data-y="76" data-w="17" data-h="13" style="transform:rotate(2.8deg)">梦境一览</div>
+</div>
+<div id="auto-tip">自 动 播 放 中　·　点击停止</div>
+<div id="dream-fade"></div>
+<div id="dream-layer">
+  <iframe id="dream-frame" title="梦境" allow="autoplay; fullscreen"></iframe>
+  <div id="dream-loading">梦 境 载 入 中</div>
+  <button id="dream-exit">醒 来</button>
+</div>
+<div id="slots">
+  <div id="slots-close" class="gold-btn" style="position:fixed;top:20px;right:30px;">关闭</div>
+  <h2>存 档</h2>
+  <div class="sub" id="slots-sub">悬停选择「存入」或「读取」</div>
+  <div id="slot-grid"></div>
+</div>
+<div id="dreams">
+  <div id="dreams-close" class="gold-btn" style="position:fixed;top:20px;right:30px;">关闭</div>
+  <h2>梦 境</h2>
+  <div class="sub" id="dream-count"></div>
+  <div id="dream-grid"></div>
+</div>
+<div id="howto">
+  <div id="howto-close" class="gold-btn" style="position:fixed;top:20px;right:30px;">关闭</div>
+  <h2>玩 法</h2>
+  <p><b>推进</b>　点击画面任意处继续。文字还在出现时点击，可以直接显示整句。</p>
+  <p><b>菜单</b>　按 <b>Esc</b> 随时唤出这个面板，再按一次收起。</p>
+  <p><b>和ta聊聊</b>　在某些时刻，你可以走进希望镇，去找镇上的人说说话。有些人要等你知道得更多，才愿意开口。</p>
+  <p><b>互动</b>　画面里偶尔需要你动手——涂抹、触碰、等待。跟着感觉做就好。</p>
+  <p><b>梦境</b>　你会做梦。梦里的规则和醒着的时候不一样，在那里你需要自己走动、自己看。做过的梦会记在「梦境一览」里。</p>
+  <p><b>存档</b>　游戏会自动记住你走到哪里。关掉再打开，可以接着走。</p>
+</div>
+
+  <div class="panel" id="logPanel"><button class="gold-btn" data-close>关闭</button><h2>回看</h2><div id="logList"></div></div>
+  <div class="panel" id="missPanel"><button class="gold-btn" data-close>关闭</button><h2>缺图清单</h2><div id="missList"></div></div>
+</div>
+
+<script src="scenes.js"></script>
+<script src="audio.js"></script>
+<script>
+// ================= 设置 =================
+const ASSET_ROOT = '';     // 本文件和“序/第一章节/…”文件夹放在同一层时留空
+const IMG_EXT = ['.png','.jpg','.jpeg','.webp','.PNG','.JPG','.JPEG'];
+const VID_EXT = ['.mp4','.mov','.webm'];
+let TYPE_SPEED = 32;
+const SAVE_KEY = 'tswdpy_v2';
+
+// 道具图名单：不铺满，出现在画面右侧，背景不变；换背景时自动收起
+const PROPS = ['插入木剑图', '登记簿显示'];
+// 红花油互动：走到这张图时触发涂抹小游戏
+const HHY_MARK = '插入红花油图片';
+
+// 人物介绍卡（第一次以对话身份出现时名字闪烁，之后点名字可随时查看）
+const CHARS = {
+  '妈妈': { card: 'ui/card_mama.webp', name: '王女士', desc: '小游的妈妈。曾经与小游的父亲有过一种"叛逃"式的恋爱，然而两人最终并没有走到最后。甚至没有留下一本结婚证。不过妈妈并不认为是坏事。回到小镇后她经营着一家糖水铺，这是很幸福的日子。' },
+  '三三': { card: 'ui/card_sansa.webp', name: '三三', desc: '小游的同桌。成绩很好的女孩，看起来上课总是很认真。不过只有小游知道，她只是胆子很小，害怕说小话被老师点名——于是把话全部留到下课说，小游听得耳朵都有点累。' },
+  '白水': { card: 'ui/card_baishui.webp', name: '白水', desc: '小游过去最好的朋友，一个开朗的小男孩。他们一起度过了短暂的童年时光。……白水，你去哪里了？' },
+  '胡中': { card: 'ui/card_huzhong.webp', name: '胡中', desc: '好像是外乡人，又好像曾是本地人。胡中救了我，不过他身上有太多秘密，……也许他会在某天告诉我。' },
+  '王叔': { card: 'ui/card_wangshu.webp', name: '王叔', desc: '镇子里的叔叔，对谁都是笑眯眯的样子，在镇子上经营着一家维修铺子。我小时候王叔经常帮我修我的自行车。' }
+};
+
+// ================= 预留接口 =================
+function playPV(done){ done(); }                 // 开场 PV：之后接入
+// 梦境：内嵌组员的 Godot 网页版（放在 dream/ 文件夹）
+// 有对应梦境就进 Godot，没有（比如梦境五还没做完）就退回占位卡片
+const DREAM_URL = { 1:'dream/game.html?dream=1', 2:'dream/game.html?dream=2',
+                    3:'dream/game.html?dream=3', 4:'dream/game.html?dream=4' };
+function enterDream(n, done){
+  markDream(n);                                  // 记进「梦境一览」
+  if(window.GameAudio)GameAudio.duck(true);      // 主线音轨压下去
+  $('paper').classList.add('dream');             // 梦境中不加纸纹滤镜
+  blocked=true;                                  // 梦境期间主线不响应点击
+
+  const finish=()=>{
+    if(!window.returnToStory) return;
+    window.returnToStory=null;
+    const fade=$('dream-fade');
+    fade.classList.add('on');                    // 1. 梦境淡隐到全黑
+    setTimeout(()=>{
+      $('dream-layer').classList.remove('show');
+      $('dream-frame').src='about:blank';
+      if(window.GameAudio)GameAudio.duck(false);
+      $('paper').classList.remove('dream');
+      hideCard(); blocked=false;
+      restoreStateAt(idx);                       // 2. 黑幕后面把画面备好
+      done();
+      setTimeout(()=>{                           // 保险：再校准一次音轨
+        if(window.GameAudio&&GameAudio.resync) GameAudio.resync(S, idx);
+      }, 400);
+      setTimeout(()=>fade.classList.remove('on'),120);  // 3. 黑幕淡开，画面淡淡浮现
+    }, 1700);
+  };
+  window.returnToStory = finish;
+
+  const url=DREAM_URL[n];
+  if(!url){                                      // 还没做好的梦境：占位
+    showCard('梦境' + '一二三四五'[n-1], '待接入 · 点击继续');
+    return;
+  }
+  const lay=$('dream-layer'), fr=$('dream-frame'), ld=$('dream-loading'), fade=$('dream-fade');
+  fade.classList.add('on');                      // 进梦境：先淡黑
+  ld.classList.remove('gone'); ld.textContent='梦 境 载 入 中';
+  setTimeout(()=>{ lay.classList.add('show'); fade.classList.remove('on'); }, 1500);
+  fr.onload=()=>setTimeout(()=>ld.classList.add('gone'),600);
+  fr.src=url;
+  $('dream-exit').onclick=e=>{e.stopPropagation(); finish();};
+}
+
+// ================= 资源查找 =================
+const cache = {}, missing = new Set();
+function variants(name){
+  const v=[name];
+  const half=name.replace(/（/g,'(').replace(/）/g,')'), full=name.replace(/\(/g,'（').replace(/\)/g,'）');
+  if(half!==name)v.push(half); if(full!==name)v.push(full);
+  const core=name.replace(/^插入/,'').replace(/(图片|图|显示)$/,'');
+  if(core&&core!==name)v.push(core);
+  return v;
+}
+const probeImg=src=>new Promise(r=>{const i=new Image();i.onload=()=>r(src);i.onerror=()=>r(null);i.src=src;});
+const probeVid=src=>new Promise(r=>{const v=document.createElement('video');v.onloadeddata=()=>r(src);v.onerror=()=>r(null);v.preload='auto';v.src=src;});
+function findAsset(folder,name){
+  const key=folder+'/'+name;
+  if(cache[key]!==undefined)return cache[key];
+  cache[key]=(async()=>{
+    for(const n of variants(name)){
+      const base=ASSET_ROOT+folder+'/'+n;
+      for(const e of IMG_EXT){const s=await probeImg(encodeURI(base+e));if(s)return{type:'img',src:s};}
+      for(const e of VID_EXT){const s=await probeVid(encodeURI(base+e));if(s)return{type:'video',src:s};}
+    }
+    missing.add(key);return null;
+  })();
+  return cache[key];
+}
+
+// ================= 画面 =================
+const $=id=>document.getElementById(id);
+let front=$('bgA'), backImg=$('bgB'), bgToken=0;
+async function setBg(folder,name){
+  const tk=++bgToken, a=await findAsset(folder,name);
+  if(tk!==bgToken)return;
+  unblack();                                   // 有画面了，纸纹恢复
+  const ph=$('placeholder'), vid=$('bgV');
+  if(!a){front.classList.remove('show');backImg.classList.remove('show');vid.classList.remove('show');vid.pause();
+    ph.style.display='flex';ph.innerHTML='缺图<br>'+folder+' / '+name;return;}
+  ph.style.display='none';
+  if(a.type==='video'){front.classList.remove('show');backImg.classList.remove('show');vid.src=a.src;vid.classList.add('show');vid.muted=true;vid.play().catch(()=>{});return;}
+  vid.classList.remove('show');vid.pause();
+  backImg.src=a.src;backImg.classList.add('show');front.classList.remove('show');
+  [front,backImg]=[backImg,front];
+}
+function setBlack(){bgToken++;front.classList.remove('show');backImg.classList.remove('show');$('bgV').classList.remove('show');$('placeholder').style.display='none';$('paper').classList.add('black');}
+function unblack(){$('paper').classList.remove('black');}
+async function setOverlay(folder,name){
+  const o=$('overlay'); if(!name){o.classList.remove('show');return;}
+  const a=await findAsset(folder,name);
+  o.innerHTML=!a?'<div class="ph">缺图：'+name+'</div>':a.type==='video'?'<video src="'+a.src+'" autoplay muted loop></video>':'<img src="'+a.src+'">';
+  o.classList.add('show');
+}
+async function setProp(folder,name){
+  const o=$('prop'); if(!name){o.classList.remove('show');return;}
+  const a=await findAsset(folder,name);
+  o.innerHTML=a?'<img src="'+a.src+'">':'<div class="ph">缺图<br>'+name+'</div>';
+  o.classList.add('show');
+}
+let dateTimer=null;
+function showDate(t){
+  const el=$('date-float');el.textContent=t;clearTimeout(dateTimer);
+  el.classList.remove('show');void el.offsetWidth;el.classList.add('show');
+  dateTimer=setTimeout(()=>el.classList.remove('show'),2200);
+}
+// 视频：带声音完整播放，播放中不能跳过，播完定格在最后一帧
+async function playVideo(folder,name,done){
+  bgToken++;
+  const a=await findAsset(folder,name), vid=$('bgV');
+  if(!a||a.type!=='video'){setBg(folder,name);done();return;}
+  $('placeholder').style.display='none';front.classList.remove('show');backImg.classList.remove('show');
+  vid.onended=null;vid.src=a.src;vid.muted=false;vid.currentTime=0;vid.classList.add('show');
+  vid.onended=()=>{vid.onended=null;vid.pause();done();};
+  vid.play().catch(()=>{vid.muted=true;vid.play().catch(()=>{vid.onended=null;done();});});
+}
+async function freezeVideo(folder,name){
+  unblack();
+  bgToken++;
+  const a=await findAsset(folder,name), vid=$('bgV');
+  if(!a)return setBg(folder,name);
+  front.classList.remove('show');backImg.classList.remove('show');$('placeholder').style.display='none';
+  vid.onended=null;vid.src=a.src;vid.classList.add('show');
+  vid.onloadedmetadata=()=>{vid.currentTime=Math.max(0,vid.duration-0.05);vid.pause();};
+}
+function showCard(t,s){$('dialog-box').classList.remove('show');$('click-hint').style.display='none';
+  const c=$('card');c.querySelector('.t').textContent=t;c.querySelector('.s').textContent=s||'';c.style.display='flex';}
+function hideCard(){$('card').style.display='none';}
+const CHAPTER_CG={'序':'ui/chapter_序.jpg','序章':'ui/chapter_序.jpg',
+  '第一章':'ui/chapter_第一章.jpg','第二章':'ui/chapter_第二章.jpg','第三章':'ui/chapter_第三章.jpg'};
+function showTitle(text,cb){
+  window.CUR_CHAPTER=text;
+  const el=$('chapter-title'), cg=$('chapter-cg');
+  $('chapter-h1').textContent=text;
+  if(String(text).includes('第二章')&&window.hideEscTip) hideEscTip();   // 提示只挂到第二章
+  const key=Object.keys(CHAPTER_CG).find(k=>String(text).includes(k));
+  const src=key?CHAPTER_CG[key]:null;
+  const run=(hasCG)=>{
+    el.classList.toggle('has-cg',hasCG);
+    cg.style.display=hasCG?'block':'none';
+    el.classList.add('show');
+    const hold=hasCG?3400:2200;                       // 有图时多停一会儿
+    setTimeout(()=>{el.classList.remove('show');setTimeout(()=>cb&&cb(),1100);},hold);
+  };
+  if(src){
+    const im=new Image();
+    im.onload=()=>{cg.src=src;run(true);};
+    im.onerror=()=>run(false);                        // 没图就退回黑底文字
+    im.src=src;
+  }else run(false);
+}
+
+// ================= 文字 =================
+let typing=false,timer=null,fullText='';
+function typeText(t){
+  $('text').textContent='';fullText=t;typing=true;$('click-hint').style.display='none';
+  let i=0;clearTimeout(timer);
+  if(window.GameAudio)GameAudio.resetType();
+  (function next(){if(i<t.length){const ch=t[i++];$('text').textContent+=ch;if(window.GameAudio)GameAudio.tick(ch);timer=setTimeout(next,TYPE_SPEED);}else finishTyping();})();
+}
+function finishTyping(){clearTimeout(timer);typing=false;$('text').textContent=fullText;$('click-hint').style.display='';if(window.autoSchedule)autoSchedule();}
+
+let seenChars={};
+function setSpeaker(name,isNewAllowed){
+  const sp=$('speaker');
+  if(!name){sp.textContent='';sp.className='';sp.onclick=null;return;}
+  const c=CHARS[name];
+  if(c){
+    const isNew=isNewAllowed&&!seenChars[name];
+    if(isNew)seenChars[name]=true;
+    sp.innerHTML=name+' <span style="font-size:0.65em;opacity:0.6;">📖</span>';
+    sp.className='clickable'+(isNew?' new-char':'');
+    sp.onclick=e=>{e.stopPropagation();openCharCard(name);};
+  }else{sp.textContent=name;sp.className='';sp.onclick=null;}
+}
+async function openCharCard(name){const c=CHARS[name];
+  let src=c.card;if(!src){const a=await findAsset(c.folder,c.img);src=a?a.src:'';}
+  $('char-card-img').src=src;$('char-name-display').textContent=c.name;$('char-desc-display').textContent=c.desc;$('char-card').classList.add('show');}
+$('char-close').onclick=e=>{e.stopPropagation();$('char-card').classList.remove('show');};
+
+// 对话：显示名字 + 引号；小游的内心独白：不显示名字、不加引号；旁白同独白
+function displayLine(s,fromBack){
+  hideCard();$('dialog-box').classList.add('show');
+  if(s.t==='narr')setSpeaker('');
+  else setSpeaker(s.who,!fromBack);
+  const t=(s.t==='say'&&s.kind==='dialogue')?'"'+s.text+'"':s.text;
+  typeText(t);
+  if(fromBack)finishTyping();
+}
+
+
+// ================= 木须生长动画（html插入） =================
+const MUXU = { hold: 2.2, xfade: 1.4, eat: 5.0 };   // 每帧停留 / 溶解 / 吞没（秒）
+let muxuTimers=[];
+function playMuxu(done){
+  const NS='http://www.w3.org/2000/svg', box=$('muxu'), svg=$('muxu-svg'), fade=$('muxu-fade');
+  const frs=[...box.querySelectorAll('.fr')];
+  const at=(f,ms)=>muxuTimers.push(setTimeout(f,ms));
+  const rnd=(a,b)=>a+Math.random()*(b-a);
+  muxuTimers.forEach(clearTimeout);muxuTimers=[];svg.innerHTML='';
+  const SEEDS=[{x:250,y:880},{x:340,y:840},{x:440,y:800},{x:540,y:772},{x:640,y:752},{x:740,y:748},{x:840,y:764},{x:930,y:796},{x:1000,y:836},{x:1060,y:876}];
+  const MAX_PATHS=2200;
+  function seg(x,y,a0,len,steps,jit){
+    let px=x,py=y,a=a0,d=`M ${x.toFixed(1)} ${y.toFixed(1)}`;const pts=[{x:px,y:py,a}];
+    for(let i=0;i<steps;i++){a+=rnd(-jit,jit);const st=len/steps;const nx=px+Math.cos(a)*st,ny=py+Math.sin(a)*st;
+      const cx=px+Math.cos(a-rnd(-.45,.45))*st*.6,cy=py+Math.sin(a-rnd(-.45,.45))*st*.6;
+      d+=` Q ${cx.toFixed(1)} ${cy.toFixed(1)} ${nx.toFixed(1)} ${ny.toFixed(1)}`;px=nx;py=ny;pts.push({x:px,y:py,a});}
+    return{d,x:px,y:py,a,pts};
+  }
+  function thorns(pts,w,t0,dur,out){
+    for(let i=1;i<pts.length;i++){if(out.length>MAX_PATHS)return;if(Math.random()<0.4)continue;
+      const p=pts[i],sa=p.a+(Math.random()<.5?1:-1)*rnd(0.6,1.5),sl=rnd(10,30)*(w/5);
+      out.push({d:`M ${p.x.toFixed(1)} ${p.y.toFixed(1)} L ${(p.x+Math.cos(sa)*sl).toFixed(1)} ${(p.y+Math.sin(sa)*sl).toFixed(1)}`,w:Math.max(.8,w*.32),t0:t0+dur*(i/pts.length),dur:dur*.3});}
+  }
+  function engulf(dur){
+    const paths=[],unit=dur*0.15;let queue=[];
+    SEEDS.forEach((sd,i)=>{for(let k=0;k<3;k++)queue.push({x:sd.x,y:sd.y,a:-Math.PI/2+rnd(-1.7,1.7),len:rnd(380,560),w:rnd(6,11),d:0,t0:i*unit*.07+k*unit*.15});});
+    while(queue.length&&paths.length<MAX_PATHS){
+      const n=queue.shift();if(n.d>6||n.w<0.8)continue;if(n.x<-300||n.x>1900||n.y<-300||n.y>1200)continue;
+      const r=seg(n.x,n.y,n.a,n.len,7,0.28),du=unit*(0.5+n.len/900);
+      paths.push({d:r.d,w:n.w,t0:n.t0,dur:du});thorns(r.pts,n.w,n.t0,du,paths);
+      const br=n.d<3?3:2;for(let b=0;b<br;b++){if(Math.random()<0.1)continue;
+        queue.push({x:r.x,y:r.y,a:r.a+rnd(-1,1),len:n.len*rnd(.75,.95),w:n.w*rnd(.75,.9),d:n.d+1,t0:n.t0+du*.45});}
+    }
+    const total=Math.max(...paths.map(p=>p.t0+p.dur)),k=dur/total,els=[],frag=document.createDocumentFragment();
+    paths.forEach(p=>{const el=document.createElementNS(NS,'path');el.setAttribute('d',p.d);el.setAttribute('fill','none');
+      el.setAttribute('stroke','#231b14');el.setAttribute('stroke-width',p.w.toFixed(2));el.setAttribute('stroke-linecap','round');
+      el.setAttribute('opacity','.95');frag.appendChild(el);els.push(el);});
+    svg.appendChild(frag);
+    els.forEach((el,i)=>{const p=paths[i],L=el.getTotalLength()||1;el.style.strokeDasharray=L;el.style.strokeDashoffset=L;
+      el.style.transition=`stroke-dashoffset ${(p.dur*k).toFixed(2)}s ease-in ${(p.t0*k).toFixed(2)}s`;});
+    requestAnimationFrame(()=>requestAnimationFrame(()=>els.forEach(el=>el.style.strokeDashoffset=0)));
+    els.forEach((el,i)=>{const p=paths[i];at(()=>{const w=parseFloat(el.getAttribute('stroke-width'));
+      el.style.transition+=`, stroke-width ${(dur*.5).toFixed(2)}s ease-in`;el.setAttribute('stroke-width',(w*40).toFixed(1));},(p.t0+p.dur)*k*1000+dur*1000*.15);});
+  }
+  const hold=MUXU.hold*1000,xfd=MUXU.xfade*1000,eatd=MUXU.eat*1000;
+  frs.forEach((f,i)=>{f.style.transition='none';f.style.opacity=i===0?1:0;f.style.transform='scale(1)';});
+  fade.style.transition='none';fade.style.opacity=0;box.classList.add('show');
+  const span=hold*frs.length+eatd;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>frs.forEach(f=>{f.style.transition=`opacity ${xfd}ms ease-in-out, transform ${span}ms linear`;f.style.transform='scale(1.16)';})));
+  for(let i=1;i<frs.length;i++)at(()=>{frs[i].style.opacity=1;},hold*i);
+  at(()=>engulf(eatd/1000),hold*frs.length);
+  at(()=>{fade.style.transition=`opacity ${(eatd*.3).toFixed(0)}ms ease-in`;fade.style.opacity=1;},hold*frs.length+eatd*0.82);
+  at(()=>{if(window.GameAudio)GameAudio.stop(35);},span+100);          // 动画收尾时淡出
+  at(()=>{box.classList.remove('show');svg.innerHTML='';done();},span+400);
+}
+function stopMuxu(){muxuTimers.forEach(clearTimeout);muxuTimers=[];if(window.GameAudio)GameAudio.stop(35,true);$('muxu').classList.remove('show');$('muxu-svg').innerHTML='';}
+
+
+// ================= 和ta聊聊：地图 =================
+// 备用台词（之后接 AI 时，AI 连不上就用这些）。第一章的内容也用于序章。
+const MAP_TALK = {
+  '妈妈': { img:'ui/map_mama.png',
+    '第一章': ['又跑出来了？别跑远了，记得回来吃饭。','你被蚊子咬的地方好点了吗？'],
+    '第二章': ['又跑出来了？别跑远了，记得回来吃饭。'],
+    '第三章': ['又跑出来了？别跑远了，记得回来吃饭。'],
+    ask: [['问问白水','白水呀……是个好孩子。'],['白水去哪里了？','我也不知道。听说他们家搬走了？']] },
+  '王叔': { img:'ui/map_wang.png',
+    '第一章': ['哦哟，小游啊。车子又坏啦？推过来叔给你看看。'],
+    '第二章': ['白水啊……他跟他妈妈走啦。你不要再找了嘛。'],
+    '第三章': ['唉……小游，有些事，你不能明白的。'] },
+  '胡中': { img:'ui/map_huzhong.png',
+    '第二章': ['知道太多并不是好事。','问那么多干嘛。睡你的觉去。'],
+    '第三章': ['你决定了的事，我不拦你。'] }
+};
+const CROW_LINES = {
+  '第二章': ['这个镇子失去了太多人。','他从来没离开。','我也在想他。'],
+  '第三章': ['小游，你不必害怕。','一切都是命运的指引。','明天、明天。小游，我常常许愿你们拥有一个明天。']
+};
+const S=window.SCENES;
+const FIRST_SAY = who => S.findIndex(s => s.t==='say' && s.who===who);
+const HU_IDX = FIRST_SAY('胡中'), CROW_IDX = FIRST_SAY('乌鸦');
+function chapterAt(k){ let c='序'; for(let i=0;i<=k&&i<S.length;i++) if(S[i].t==='chapter') c=S[i].name; return c==='序'?'第一章':c; }
+function mapOpenable(){
+  return $('game').classList.contains('show') && !blocked && idx>=0 &&
+    $('card').style.display!=='flex' && !$('choices').classList.contains('show') &&
+    !$('muxu').classList.contains('show') && !$('chapter-title').classList.contains('show') &&
+    !$('hhy-overlay').classList.contains('show') && !$('map-layer').classList.contains('show');
+}
+setInterval(()=>$('btn-map').classList.toggle('show', mapOpenable()), 200);
+function openMap(){
+  document.querySelector('.mhead[data-key="胡中"]').classList.toggle('locked', !(HU_IDX>=0 && idx>=HU_IDX));
+  document.querySelector('.mhead[data-key="乌鸦"]').classList.toggle('locked', !(CROW_IDX>=0 && idx>=CROW_IDX));
+  $('m-talk').classList.remove('show');
+  $('map-layer').classList.add('show');
+}
+function closeMap(){ $('map-layer').classList.remove('show'); }
+$('btn-map').onclick=e=>{e.stopPropagation(); if(mapOpenable()) openMap();};
+$('map-close').onclick=e=>{e.stopPropagation(); closeMap();};
+$('map-layer').addEventListener('click',e=>e.stopPropagation());
+let mwT=null;
+function mWhisper(el,text){
+  const w=$('m-whisper'); w.textContent=text; w.style.left=el.style.left||'54%';
+  w.style.top=(parseFloat(el.style.top||'18')-8)+'%';
+  w.classList.remove('show'); void w.offsetWidth; w.classList.add('show');
+  clearTimeout(mwT); mwT=setTimeout(()=>w.classList.remove('show'),2800);
+}
+let chatWho='';
+const FAKE_REPLIES={
+  '妈妈':['记得回来吃饭。','你最近睡得好吗？','别乱跑，知道吗。'],
+  '王叔':['哦哟，叔也不晓得嘛。','你这孩子，问那么多干嘛。','嗯……叔有点事，改天再说啊。'],
+  '胡中':['你问这个干嘛。','也许吧。','没什么好说的。']
+};
+function appendNpcMsg(text){
+  const d=document.createElement('div');d.className='m-msg-npc';d.textContent='“'+text+'”';
+  $('m-chat-log').appendChild(d);$('m-chat-log').scrollTop=1e9;
+}
+function appendPlayerMsg(text){
+  const d=document.createElement('div');d.className='m-msg-player';d.textContent=text;
+  $('m-chat-log').appendChild(d);$('m-chat-log').scrollTop=1e9;
+}
+async function getReply(who,text){
+  const pool=FAKE_REPLIES[who]||['……'];
+  try{
+    const ctrl=new AbortController();
+    const timer=setTimeout(()=>ctrl.abort(),8000);
+    const ch=chapterAt(idx);
+    const resp=await fetch('https://my-friend.chunnliuu.workers.dev',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({who,chapter:ch,message:text}),
+      signal:ctrl.signal
+    });
+    clearTimeout(timer);
+    if(!resp.ok)throw new Error('http '+resp.status);
+    const data=await resp.json();
+    if(data.reply)return data.reply;
+    throw new Error('empty');
+  }catch(e){
+    return pool[Math.floor(Math.random()*pool.length)];
+  }
+}
+async function sendChat(){
+  const inp=$('m-chat-input'),text=inp.value.trim();
+  if(!text)return;
+  inp.value='';appendPlayerMsg(text);
+  $('m-chat-send').disabled=true;inp.disabled=true;
+  const dot=document.createElement('div');dot.className='m-msg-typing';dot.textContent='……';
+  $('m-chat-log').appendChild(dot);$('m-chat-log').scrollTop=1e9;
+  try{
+    const reply=await getReply(chatWho,text);
+    dot.remove();appendNpcMsg(reply);
+  }catch(e){
+    dot.remove();appendNpcMsg((FAKE_REPLIES[chatWho]||['……'])[0]);
+  }
+  $('m-chat-send').disabled=false;inp.disabled=false;inp.focus();
+}
+function openTalk(who){
+  chatWho=who;
+  const d=MAP_TALK[who],ch=chapterAt(idx);
+  $('m-talk-img').src=d.img;$('m-talk-who').textContent=who;
+  $('m-chat-log').innerHTML='';$('m-chat-input').value='';
+  $('m-talk').classList.add('show');
+  const lines=d[ch]||d['第一章']||['……'];
+  appendNpcMsg(lines[0]);
+  setTimeout(()=>$('m-chat-input').focus(),120);
+}
+$('m-talk-box').onclick=e=>e.stopPropagation();
+$('m-talk').onclick=e=>{if(e.target===$('m-talk'))$('m-talk').classList.remove('show');};
+$('m-chat-send').onclick=e=>{e.stopPropagation();sendChat();};
+$('m-chat-input').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();sendChat();}});
+$('m-chat-input').addEventListener('click',e=>e.stopPropagation());
+$('map').addEventListener('click',e=>{
+  if(e.target.closest('#m-talk')) return;
+  const bs=e.target.closest('.m-baishui'); if(bs){ mWhisper(bs,'白水无法回应你……'); return; }
+  const h=e.target.closest('.mhead'); if(!h||h.classList.contains('locked')) return;
+  const who=h.dataset.key;
+  if(who==='乌鸦'){ const pool=CROW_LINES[chapterAt(idx)]||CROW_LINES['第二章']; mWhisper(h,pool[Math.floor(Math.random()*pool.length)]); return; }
+  openTalk(who);
+});
+
+// ================= 流程 =================
+let idx=-1,waiting=null,blocked=false,logArr=[],ignoreUntil=0;
+
+function restoreStateAt(k){
+  let bg=null,ov=null,pr=null,black=false;
+  for(let i=0;i<=k;i++){const s=S[i];
+    if(s.t==='bg'&&s.name===HHY_MARK)continue;
+    if(s.t==='bg'&&PROPS.includes(s.name)){pr=s;continue;}
+    if(s.t==='bg'||s.t==='video'){bg=s;black=false;pr=null;}
+    else if(s.t==='black'||s.t==='muxu'){black=true;pr=null;}
+    else if(s.t==='overlay')ov=s;
+    else if(s.t==='clearOverlay'||s.t==='chapter')ov=null;
+  }
+  if(window.GameAudio&&GameAudio.resync)GameAudio.resync(S,k);   // 音轨跟着回退/跳转同步
+  if(black||!bg)setBlack();else if(bg.t==='video')freezeVideo(bg.folder,bg.name);else setBg(bg.folder,bg.name);
+  ov?setOverlay(ov.folder,ov.name):setOverlay();
+  pr?setProp(pr.folder,pr.name):setProp();
+}
+function preload(from){for(let i=from,n=0;i<S.length&&n<4;i++)if(S[i].t==='bg'||S[i].t==='overlay'){findAsset(S[i].folder,S[i].name);n++;}}
+function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({idx,seenChars,chapter:(window.CUR_CHAPTER||'')}));$('save-notice').classList.add('show');setTimeout(()=>$('save-notice').classList.remove('show'),1500);}catch(e){}}
+function loadSave(){try{return JSON.parse(localStorage.getItem(SAVE_KEY));}catch(e){return null;}}
+
+function step(){
+  if(blocked)return;
+  if(typing){finishTyping();return;}
+  if(waiting){const w=waiting;waiting=null;w();return;}
+  idx++;
+  if(idx>=S.length){showCard('— 完 —','点击回到标题');waiting=goHome;return;}
+  const s=S[idx];preload(idx+1);
+  if(window.GameAudio)GameAudio.cue(s);
+  switch(s.t){
+    case 'chapter':
+      setOverlay();setProp();setBlack();$('dialog-box').classList.remove('show');$('click-hint').style.display='none';
+      blocked=true;save();
+      showTitle(s.name==='序'?'序章':s.name,()=>{blocked=false;step();});
+      break;
+    case 'bg':
+      if(s.name===HHY_MARK){startHHY(s);break;}
+      if(PROPS.includes(s.name)){setProp(s.folder,s.name);step();break;}
+      setProp();setBg(s.folder,s.name);afterImage();break;
+    case 'video':
+      setProp();blocked=true;$('dialog-box').classList.remove('show');$('click-hint').style.display='none';
+      playVideo(s.folder,s.name,()=>{blocked=false;afterImage();});
+      break;
+    case 'date':showDate(s.text);step();break;
+    case 'black':setProp();setBlack();step();break;
+    case 'overlay':setOverlay(s.folder,s.name);step();break;
+    case 'clearOverlay':setOverlay();step();break;
+    case 'dream':
+      setOverlay();setProp();setBlack();save();
+      enterDream(s.n,()=>step());
+      waiting=()=>window.returnToStory&&window.returnToStory();
+      break;
+    case 'special':
+      showCard('【待定】'+s.label,'点击继续');waiting=()=>{hideCard();step();};break;
+    case 'choice':showChoice(s);break;
+    case 'muxu':
+      blocked=true;$('dialog-box').classList.remove('show');$('click-hint').style.display='none';setProp();
+      playMuxu(()=>{setBlack();blocked=false;step();});
+      break;
+    case 'say':case 'narr':
+      save();logArr.push({who:s.t==='say'?s.who:'',text:s.text});
+      displayLine(s);break;
+  }
+}
+
+// 换图后：紧跟着的日期立刻浮现；如果下一步又是换图，就停在这张图上，点一下再换
+function isImageStep(s){return s&&((s.t==='bg'&&!PROPS.includes(s.name)&&s.name!==HHY_MARK)||s.t==='video');}
+function afterImage(){
+  while(S[idx+1]&&S[idx+1].t==='date'){idx++;showDate(S[idx].text);}
+  if(isImageStep(S[idx+1])){
+    $('dialog-box').classList.remove('show');$('click-hint').style.display='';
+    waiting=()=>step();
+  }else step();
+}
+function showChoice(s){
+  blocked=true;$('dialog-box').classList.remove('show');$('click-hint').style.display='none';
+  const el=$('choices');el.innerHTML='';
+  s.options.forEach(o=>{
+    const b=document.createElement('button');b.className='choice-btn'+(o.active?'':' inactive');b.textContent=o.text;
+    b.onclick=e=>{e.stopPropagation();if(!o.active)return;el.classList.remove('show');blocked=false;logArr.push({who:'',text:'（选择）'+o.text});step();};
+    el.appendChild(b);
+  });
+  el.classList.add('show');
+}
+
+// 红花油：右侧浮动小瓶 → 点击 → 涂抹 70% → 继续
+function startHHY(){
+  blocked=true;$('click-hint').style.display='none';
+  $('hhy-mini').classList.add('show');$('hhy-hint').classList.add('show');
+}
+$('hhy-mini').src='ui/honghuayou.webp';
+$('hhy-mini').onclick=e=>{e.stopPropagation();$('hhy-mini').classList.remove('show');$('hhy-hint').classList.remove('show');$('hhy-overlay').classList.add('show');initPaint();};
+function initPaint(){
+  const canvas=$('paint-canvas'),ctx=canvas.getContext('2d');
+  ctx.globalAlpha=1;ctx.fillStyle='#c8a882';ctx.fillRect(0,0,420,190);
+  for(let i=0;i<9;i++){ctx.fillStyle='#b03030';ctx.beginPath();ctx.arc(35+i*42,80+(i%3)*18,9,0,Math.PI*2);ctx.fill();}
+  const mask=document.createElement('canvas');mask.width=420;mask.height=190;const mctx=mask.getContext('2d');
+  let painting=false,painted=0,done=false;const total=30000,prog=$('paint-progress');prog.textContent='涂抹进度：0%';
+  function paint(x,y){
+    const prev=mctx.getImageData(Math.max(0,x-20),Math.max(0,y-20),40,40);
+    ctx.globalAlpha=0.35;ctx.fillStyle='#c84400';ctx.beginPath();ctx.arc(x,y,20,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
+    mctx.fillStyle='#f00';mctx.beginPath();mctx.arc(x,y,20,0,Math.PI*2);mctx.fill();
+    const after=mctx.getImageData(Math.max(0,x-20),Math.max(0,y-20),40,40);
+    let np=0;for(let i=0;i<after.data.length;i+=4)if(after.data[i]>0&&prev.data[i]===0)np++;
+    painted=Math.min(painted+np,total);const pct=Math.round(painted/total*100);
+    prog.textContent='涂抹进度：'+pct+'%';
+    if(pct>=70&&!done){done=true;if(window.GameAudio)GameAudio.stop(7,true);ignoreUntil=Date.now()+1500;setTimeout(()=>{$('hhy-overlay').classList.remove('show');blocked=false;step();},600);}
+  }
+  const sfxOn=()=>{if(window.GameAudio)GameAudio.play(7);}, sfxOff=()=>{if(window.GameAudio)GameAudio.stop(7,true);};
+  canvas.onmousedown=e=>{painting=true;sfxOn();paint(e.offsetX,e.offsetY);};
+  canvas.onmousemove=e=>{if(painting)paint(e.offsetX,e.offsetY);};
+  canvas.onmouseup=canvas.onmouseleave=()=>{painting=false;sfxOff();};
+  canvas.ontouchstart=e=>{painting=true;sfxOn();const r=canvas.getBoundingClientRect();paint(e.touches[0].clientX-r.left,e.touches[0].clientY-r.top);};
+  canvas.ontouchmove=e=>{if(painting){const r=canvas.getBoundingClientRect();paint(e.touches[0].clientX-r.left,e.touches[0].clientY-r.top);}};
+  canvas.ontouchend=()=>{painting=false;sfxOff();};
+}
+$('hhy-overlay').onclick=e=>e.stopPropagation();
+
+function back(){
+  if(blocked)return;
+  let k=idx-1;while(k>=0&&S[k].t!=='say'&&S[k].t!=='narr')k--;
+  if(k<0)return;
+  waiting=null;clearTimeout(timer);typing=false;idx=k;logArr.pop();
+  restoreStateAt(k);displayLine(S[k],true);
+}
+
+function resetUI(){
+  if(window.GameAudio)GameAudio.stopAll(true);
+  closeMap();$('paper').classList.remove('dream');stopMuxu();const v=$('bgV');v.onended=null;v.pause();clearTimeout(dateTimer);$('date-float').classList.remove('show');clearTimeout(timer);typing=false;waiting=null;blocked=false;
+  ['choices','char-card','hhy-overlay','hhy-mini','hhy-hint','resume-modal'].forEach(id=>$(id).classList.remove('show'));
+  hideCard();$('dialog-box').classList.remove('show');$('click-hint').style.display='none';
+}
+function startAt(k,keepSeen){
+  resetUI();$('start-screen').style.display='none';$('game').classList.add('show');
+  setTimeout(()=>{
+    const passed=S.slice(0,idx+1).some(x=>x.t==='chapter'&&String(x.name).includes('第二章'));
+    if(!passed&&window.showEscTip) showEscTip();
+  }, 2500);
+  idx=k-1;logArr=[];if(!keepSeen)seenChars={};
+  restoreStateAt(k-1);step();
+}
+function goHome(){setAuto(false);resetUI();setBlack();setOverlay();setProp();$('game').classList.remove('show');$('start-screen').style.display='';}
+
+// ================= 事件 =================
+$('btn-start-game').onclick=e=>{
+  e.stopPropagation();
+  const sv=loadSave();
+  playPV(()=>{
+    if(sv&&sv.idx>0){
+      $('start-screen').style.display='none';$('game').classList.add('show');$('resume-modal').classList.add('show');
+      $('btn-resume').onclick=ev=>{ev.stopPropagation();seenChars=sv.seenChars||{};
+        let k=sv.idx;while(k>0&&!['say','narr','dream','chapter'].includes(S[k].t))k--;startAt(k,true);};
+      $('btn-restart').onclick=ev=>{ev.stopPropagation();localStorage.removeItem(SAVE_KEY);startAt(0);};
+    }else startAt(0);
+  });
+};
+$('btn-settings-screen').onclick=e=>{e.stopPropagation();$('settings-screen').classList.add('show');};
+$('btn-save-screen').onclick=e=>{e.stopPropagation();openSlots(true);};
+$('close-settings').onclick=()=>$('settings-screen').classList.remove('show');
+$('paper-k').oninput=()=>{$('paper-val').textContent=$('paper-k').value;$('paper').style.setProperty('--k',$('paper-k').value/100);};
+let toastT=null;function toast(t){const el=$('paper-toast');el.textContent=t;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),1200);}
+[['bgm-vol','bgm-val'],['sfx-vol','sfx-val'],['spd','spd-val']].forEach(([a,b])=>{
+  $(a).oninput=()=>{$(b).textContent=$(a).value;if(a==='spd')TYPE_SPEED=+$(a).value;
+    if(window.GameAudio){if(a==='bgm-vol')GameAudio.setBgmVol($(a).value/100);if(a==='sfx-vol')GameAudio.setSfxVol($(a).value/100);}};
+});
+S.forEach((s,i)=>{if(s.t!=='chapter')return;
+  const b=document.createElement('button');b.textContent=s.name;
+  b.onclick=e=>{e.stopPropagation();startAt(i);};$('chapters').appendChild(b);});
+
+$('btnBack').onclick=e=>{e.stopPropagation();back();};
+$('btnHome').onclick=e=>{e.stopPropagation();goHome();};
+$('btnLog').onclick=e=>{e.stopPropagation();
+  $('logList').innerHTML=logArr.map(l=>'<div class="row">'+(l.who?'<b>'+l.who+'</b>':'')+l.text+'</div>').join('');
+  $('logPanel').style.display='block';$('logPanel').scrollTop=1e9;};
+$('btnMiss').onclick=async e=>{e.stopPropagation();
+  $('missList').innerHTML='<div class="row">检查中……</div>';$('missPanel').style.display='block';
+  const all=S.filter(s=>(s.t==='bg'&&s.name!==HHY_MARK)||s.t==='overlay'||s.t==='video');
+  await Promise.all(all.map(s=>findAsset(s.folder,s.name)));
+  const list=[...missing];
+  $('missList').innerHTML=list.length?'<div class="row">共 '+list.length+' 处找不到（请检查文件名是否和剧本里 & 后面的名字一致）：</div>'+list.map(m=>'<div class="row">'+m+'</div>').join(''):'<div class="row">全部图片都找到了。</div>';};
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=e=>{e.stopPropagation();b.parentElement.style.display='none';});
+document.querySelectorAll('.panel').forEach(p=>p.addEventListener('click',e=>e.stopPropagation()));
+
+$('game').addEventListener('click',e=>{
+  if(Date.now()<ignoreUntil)return;
+  if(AUTO&&!e.target.closest('#tools'))setAuto(false);   // 点一下就停
+
+  if(e.target.closest('#tools')||$('char-card').classList.contains('show')||$('resume-modal').classList.contains('show'))return;
+  step();
+});
+document.addEventListener('keydown',e=>{
+  if(!$('game').classList.contains('show'))return;
+  if($('map-layer').classList.contains('show')){if(e.key==='Escape')closeMap();return;}
+  if([...document.querySelectorAll('.panel')].some(p=>p.style.display==='block')){
+    if(e.key==='Escape')document.querySelectorAll('.panel').forEach(p=>p.style.display='none');return;}
+  if($('char-card').classList.contains('show')){if(e.key==='Escape')$('char-card').classList.remove('show');return;}
+  if(e.key==='g'||e.key==='G'){const p=$('paper');p.classList.toggle('off');toast(p.classList.contains('off')?'纸纹：关':'纸纹：开');return;}
+  if(e.key===' '||e.key==='Enter'){e.preventDefault();step();}
+  if(e.key==='ArrowLeft'||e.key==='Backspace'){e.preventDefault();back();}
+});
+
+/* ===== 自动播放 ===== */
+let AUTO=false, autoTimer=null;
+function autoDelay(text){                      // 读完一句需要的时间，随长度变化
+  const n=(text||'').length;
+  return Math.min(6000, 900 + n*135);
+}
+function autoCancel(){ clearTimeout(autoTimer); autoTimer=null; }
+function autoSchedule(){
+  autoCancel();
+  if(!AUTO) return;
+  const s=S[idx];
+  if(!s||(s.t!=='say'&&s.t!=='narr')) return;   // 只在台词/旁白之后自动前进
+  autoTimer=setTimeout(()=>{
+    if(!AUTO) return;
+    if(blocked||typing) return;                                  // 动画/视频/梦境进行中
+    if($('menu-layer').classList.contains('show')) return;       // 菜单开着
+    if($('dream-layer').classList.contains('show')) return;
+    if($('choices').classList.contains('show')) return;          // 有选项等玩家决定
+    if($('map-layer').classList.contains('show')) return;
+    if($('char-card').classList.contains('show')) return;
+    step();
+  }, autoDelay(fullText));
+}
+function setAuto(v){
+  AUTO=v;
+  $('auto-tip').classList.toggle('show',v);
+  const c=$('mc-auto'); if(c) c.classList.toggle('on',v);
+  v ? autoSchedule() : autoCancel();
+}
+
+/* ===== 手动存档（三个档位） ===== */
+const SLOT_KEY='timf_slot_';
+let slotsReadOnly=false;
+function readSlot(i){ try{return JSON.parse(localStorage.getItem(SLOT_KEY+i));}catch(e){return null;} }
+function writeSlot(i){
+  const now=new Date();
+  const pad=n=>String(n).padStart(2,'0');
+  const data={idx,seenChars,chapter:(window.CUR_CHAPTER||''),
+    line:(S[idx]&&(S[idx].text||S[idx].name)||'').slice(0,22),
+    time:`${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())}  ${pad(now.getHours())}:${pad(now.getMinutes())}`};
+  try{ localStorage.setItem(SLOT_KEY+i, JSON.stringify(data)); }catch(e){}
+  renderSlots();
+}
+function applySlot(d){
+  if(!d) return;
+  $('slots').classList.remove('show');
+  if(window.toggleMenu && window.menuIsOpen && menuIsOpen()) toggleMenu();
+  seenChars=d.seenChars||{};
+  startAt((d.idx|0)+1, true);
+}
+function renderSlots(){
+  const g=$('slot-grid'); let h='';
+  const auto=loadSave();
+  h+= auto ? `<div class="slot auto" data-i="auto">
+        <div class="no">自 动 存 档</div>
+        <div class="ch">${auto.chapter||'　'}</div>
+        <div class="ln">第 ${(auto.idx|0)+1} 句</div>
+        <div class="slot-act"><button data-act="load" data-i="auto">读取</button></div>
+      </div>`
+    : `<div class="slot empty auto">自动存档　空</div>`;
+  for(let i=1;i<=3;i++){
+    const d=readSlot(i);
+    if(d){
+      h+=`<div class="slot" data-i="${i}">
+        <div class="no">档 案 ${i}</div>
+        <div class="ch">${d.chapter||'　'}</div>
+        <div class="ln">第 ${(d.idx|0)+1} 句<br>${(d.line||'').replace(/</g,'')}</div>
+        <div class="tm">${d.time||''}</div>
+        <div class="slot-act">
+          ${slotsReadOnly?'':'<button data-act="save" data-i="'+i+'">存入</button>'}
+          <button data-act="load" data-i="${i}">读取</button>
+        </div></div>`;
+    }else{
+      h+=`<div class="slot empty" data-i="${i}">档案 ${i}　空
+        <div class="slot-act">${slotsReadOnly?'<span style="color:rgba(232,214,178,.4);font-size:.75rem">空档案</span>':'<button data-act="save" data-i="'+i+'">存入</button>'}</div>
+      </div>`;
+    }
+  }
+  g.innerHTML=h;
+  g.querySelectorAll('button[data-act]').forEach(b=>{
+    b.onclick=e=>{
+      e.stopPropagation();
+      const i=b.dataset.i, act=b.dataset.act;
+      if(act==='save'){
+        if(readSlot(i) && !confirm('这个档案已有记录，要覆盖吗？')) return;
+        writeSlot(i);
+      }else{
+        applySlot(i==='auto'?loadSave():readSlot(i));
+      }
+    };
+  });
+}
+function openSlots(readOnly){
+  slotsReadOnly=!!readOnly;
+  $('slots-sub').textContent = readOnly ? '选择一个档案读取' : '悬停选择「存入」或「读取」';
+  renderSlots();
+  $('slots').classList.add('show');
+}
+
+/* ===== 开始界面：标题分段浮现 ===== */
+(function(){
+  let began=false;
+  function begin(){
+    if(began) return; began=true;
+    const scr=document.getElementById('start-screen');
+    scr.classList.add('began');
+    document.getElementById('title-friend').classList.add('show');   // 「朋友」3 秒淡入
+    setTimeout(()=>{                                                 // 完成后再等 5 秒
+      ['lbl-start','lbl-settings','lbl-save'].forEach(id=>
+        document.getElementById(id).classList.add('show'));
+      scr.classList.add('ready');                                    // 这时提示和按钮才出现
+    }, 8000);
+  }
+  function onFirst(e){
+    const scr=document.getElementById('start-screen');
+    if(!scr || scr.style.display==='none') return;
+    if(began) return;
+    e.stopPropagation(); e.preventDefault();
+    begin();
+  }
+  document.addEventListener('pointerdown', onFirst, true);
+  document.addEventListener('keydown', function(e){
+    const scr=document.getElementById('start-screen');
+    if(scr && !began && (e.key===' '||e.key==='Enter')){ e.preventDefault(); begin(); }
+  }, true);
+})();
+
+/* ===== 梦境记录 ===== */
+const DREAM_NAMES={1:'家',2:'医院',3:'喂鸟',4:'玻璃缸',5:'街道'};
+function seenDreams(){ try{return JSON.parse(localStorage.getItem('timf_dreams')||'[]');}catch(e){return [];} }
+function markDream(n){ const a=seenDreams(); if(!a.includes(n)){a.push(n);localStorage.setItem('timf_dreams',JSON.stringify(a));} }
+function renderDreams(){
+  const seen=seenDreams(), keys=Object.keys(DREAM_NAMES).map(Number);
+  $('dream-count').textContent = seen.length+' / '+keys.length;
+  $('dream-grid').innerHTML = keys.map(n=>
+    seen.includes(n) ? '<div class="dcell">'+DREAM_NAMES[n]+'</div>'
+                     : '<div class="dcell lock"></div>').join('');
+}
+
+/* ===== Esc 菜单 ===== */
+(function(){
+  const L=$('menu-layer'), svg=$('menu-svg');
+  const LINKS=[['mc-back','mc-log'],['mc-log','mc-map'],['mc-back','mc-set'],
+               ['mc-set','mc-how'],['mc-how','mc-map'],['mc-how','mc-home'],
+               ['mc-set','mc-dream'],['mc-home','mc-slot'],
+               ['mc-dream','mc-auto'],['mc-auto','mc-slot'],['mc-how','mc-auto']];
+  function layout(){
+    const W=L.clientWidth,H=L.clientHeight;
+    L.querySelectorAll('.mcard').forEach(c=>{
+      c.style.left=c.dataset.x+'%'; c.style.top=c.dataset.y+'%';
+      c.style.width=c.dataset.w+'%'; c.style.height=c.dataset.h+'%';
+    });
+    let h='';
+    const ctr=id=>{const e=$(id);return [e.offsetLeft+e.offsetWidth/2, e.offsetTop+e.offsetHeight/2];};
+    LINKS.forEach(([a,b])=>{const p=ctr(a),q=ctr(b);
+      h+='<line x1="'+p[0]+'" y1="'+p[1]+'" x2="'+q[0]+'" y2="'+q[1]+'"/>';});
+    L.querySelectorAll('.mcard').forEach(c=>{const p=ctr(c.id);
+      h+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="3.5"/>';});
+    svg.setAttribute('viewBox','0 0 '+W+' '+H); svg.innerHTML=h;
+  }
+  function menuOpen(){ return L.classList.contains('show'); }
+  function openMenu(){
+    if($('start-screen').classList.contains('show'))return;
+    hideEscTip();
+    $('mc-map').classList.toggle('locked', !mapOpenable());
+    $('mc-auto').classList.toggle('on', AUTO);
+    L.classList.add('show'); layout();
+  }
+  function closeMenu(){ L.classList.remove('show'); }
+  window.toggleMenu=()=>menuOpen()?closeMenu():openMenu();
+  // 右上角提示：进入游戏后出现，12 秒后淡出；用过一次就不再出现
+  let tipDone=false;
+  window.hideEscTip=function(){                     // 玩家按过 Esc，或进入第二章
+    tipDone=true;
+    const t=$('esc-tip'); if(t) t.classList.remove('show');
+  };
+  window.showEscTip=function(){                     // 常驻，直到 hideEscTip 被调用
+    if(tipDone) return;
+    const t=$('esc-tip'); if(t) t.classList.add('show');
+  };
+  window.menuIsOpen=menuOpen;
+
+  addEventListener('resize',()=>{ if(menuOpen()) layout(); });
+  L.addEventListener('click',e=>e.stopPropagation());
+  $('menu-close').onclick=closeMenu;
+
+  $('mc-back').onclick=()=>{closeMenu();$('btnBack').click();};
+  $('mc-log').onclick =()=>{closeMenu();$('btnLog').click();};
+  $('mc-map').onclick =()=>{ if(!mapOpenable())return; closeMenu(); openMap(); };
+  $('mc-set').onclick =()=>{closeMenu();$('settings-screen').classList.add('show');};
+  $('mc-home').onclick=()=>{closeMenu();$('btnHome').click();};
+  $('mc-how').onclick =()=>{$('howto').classList.add('show');};
+  $('mc-dream').onclick=()=>{renderDreams();$('dreams').classList.add('show');};
+  $('mc-slot').onclick=()=>{openSlots(false);};
+  $('mc-auto').onclick=()=>{closeMenu();setAuto(!AUTO);};
+  $('slots').addEventListener('click',e=>e.stopPropagation());
+  $('slots-close').onclick=()=>$('slots').classList.remove('show');
+  $('dreams').addEventListener('click',e=>e.stopPropagation());
+  $('dreams-close').onclick=()=>$('dreams').classList.remove('show');
+  $('howto').addEventListener('click',e=>e.stopPropagation());
+  $('howto-close').onclick=()=>$('howto').classList.remove('show');
+
+  document.addEventListener('keydown',e=>{
+    if(e.key!=='Escape')return;
+    if($('slots').classList.contains('show')){$('slots').classList.remove('show');return;}
+    if($('dreams').classList.contains('show')){$('dreams').classList.remove('show');return;}
+    if($('howto').classList.contains('show')){$('howto').classList.remove('show');return;}
+    if($('map-layer').classList.contains('show')){closeMap();return;}
+    if($('settings-screen').classList.contains('show')){$('settings-screen').classList.remove('show');return;}
+    toggleMenu();
+  });
+})();
+
+/* M 键：显示/隐藏开发用的「缺图清单」 */
+document.addEventListener('keydown',e=>{
+  if(e.key==='m'||e.key==='M'){
+    const t=document.getElementById('tools');
+    if(t) t.classList.toggle('dev');
+  }
+});
+</script>
+</body>
+</html>

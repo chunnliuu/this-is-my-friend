@@ -1,0 +1,30 @@
+{
+  "version": "story-bridge-20260913",
+  "status": "local-build-integration-pending",
+  "commit_sha": null,
+  "actions_run_id": null,
+  "validation": [
+    "Godot ending animation completes once even when play called twice",
+    "parent callback present/absent/non-function tests passed",
+    "four scenes use shared DreamWake"
+  ],
+  "sha256": {
+    "game-story-bridge.audio.position.worklet.js": "be33985bc7160d6bf9646f259cd86b259cd67b02ccb297ee5c44f8ac84327bc8",
+    "使用说明.txt": "fe581b679a5036b032ceb4d71fc320ce2006320ce454d4c58ed87006413d9932",
+    "game.js": "68586d6daafc93c6e697b3fb258976874aa7459b8931165ebb1dc3c9614cc42c",
+    "index.html": "080df5e06f61edfdc651468d98d55249f04f6504f5536fed937b8be972af1c6d",
+    "game.png": "3cb4495c0b98dfbe4b663cbf2b6836473572339beb66d902367893162a70be0e",
+    "game.icon.png": "ad3c35ad0facf487c618204bd98db543034fc95224eadc7f08c7a9ff38d5b3b5",
+    "game-story-bridge.wasm": "7eda98958eb09135a1acb54a4323a00b1a55af1997f15fa1cdc2b93e3df46656",
+    "启动游戏.bat": "03f04e9c414cfbdca731fd6253efb7123ac45d9e40ea293fd04d74a5448517bd",
+    "game-story-bridge.pck": "141afcbd07d35a959addd9f6c021cbee92b83425146d44010e1cacfb802060c8",
+    "serve.py": "0e660768ac29cf3018b26e9447e0c1442c33657fa685659cc2aa1849949e1253",
+    "启动游戏.command": "d45a33136fa3781ec0f3aa5856b4c11fd22204de9a5771dfaa8789d92c51e6fb",
+    "文游接入说明.txt": "ce43adb0e9122f3fc19952e4112bc3c5af8e310a03b94b184435e4a1a8d868b3",
+    "game.html": "bc6f6d9c5a288ca5989aa080b1b1336b58d4259767bf9ffd9d984b6d7e1b0485",
+    "音效来源-v85.md": "1e4b84d4e507b870e261f4d20052051e64041934476aec754f5727de43bc2480",
+    "本版更新.txt": "4aac459cabe7576add028d60c13721efc192b5638b290ca948ddecd15a60c35a",
+    "game.apple-touch-icon.png": "01d4f63e525941e06ce74f5187dad030d20a8d52a07ce365ae4e94af97a3b1f5",
+    "game-story-bridge.audio.worklet.js": "5b476a9c9ce642c0ee4256436d1bc31d9c38f868aca0f9a8e2a57c18d2dec2a3"
+  }
+}

@@ -1,0 +1,10 @@
+一至四：每章睁眼结束动画完成后自动调用一次父页面的 window.returnToStory()。
+外层示例：
+window.returnToStory = function () {
+  // 关闭梦境 iframe，继续你的文游。
+};
+iframe 加载本包 game.html?dream=1（2、3、4同理）。
+游戏与父页面需要同源；iframe 若启用 sandbox，需要 allow-scripts 和 allow-same-origin。
+没有父页面回调时仍可独立试玩。函数调用成功后不显示“返回试玩目录”。
+函数名使用 returnToStory，代码里的点不加反斜杠。
+已验证结束动画只完成一次、回调和无回调兼容；外层文游由你方接入，尚未与其实际工程联调。
