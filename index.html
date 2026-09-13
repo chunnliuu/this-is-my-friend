@@ -461,6 +461,7 @@ html,body{width:100%;height:100%;background:#000;overflow:hidden;font-family:var
 </div>
 
 <script src="scenes.js"></script>
+<script src="assets.js"></script>
 <script src="audio.js"></script>
 <script>
 // ================= 设置 =================
@@ -509,9 +510,10 @@ function enterDream(n, done){
       hideCard(); blocked=false;
       restoreStateAt(idx);                       // 2. 黑幕后面把画面备好
       done();
-      setTimeout(()=>{                           // 保险：再校准一次音轨
+      // 保险：连续几次强制唤醒，防止浏览器在梦境期间把音轨挂起
+      [400,1200,2500].forEach(ms=>setTimeout(()=>{
         if(window.GameAudio&&GameAudio.resync) GameAudio.resync(S, idx);
-      }, 400);
+      }, ms));
       setTimeout(()=>fade.classList.remove('on'),120);  // 3. 黑幕淡开，画面淡淡浮现
     }, 1700);
   };
@@ -547,6 +549,16 @@ function findAsset(folder,name){
   const key=folder+'/'+name;
   if(cache[key]!==undefined)return cache[key];
   cache[key]=(async()=>{
+    // 有清单就直接命中，不再逐个后缀试探（线上会产生大量 404，导致图片加载不出来）
+    if(window.ASSETS){
+      for(const n of variants(name)){
+        const base=folder+'/'+n;
+        for(const e of IMG_EXT) if(ASSETS.has(base+e)) return {type:'img',  src:encodeURI(ASSET_ROOT+base+e)};
+        for(const e of VID_EXT) if(ASSETS.has(base+e)) return {type:'video',src:encodeURI(ASSET_ROOT+base+e)};
+      }
+      missing.add(key); return null;
+    }
+    // 没有清单时退回原来的试探方式
     for(const n of variants(name)){
       const base=ASSET_ROOT+folder+'/'+n;
       for(const e of IMG_EXT){const s=await probeImg(encodeURI(base+e));if(s)return{type:'img',src:s};}
